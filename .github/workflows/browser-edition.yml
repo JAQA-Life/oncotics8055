@@ -26,6 +26,7 @@ jobs:
       - run: npm test
       - run: npm run build
       - run: npx playwright install --with-deps chromium
+      - run: sudo apt-get install -y mesa-vulkan-drivers vulkan-tools
       - run: npm run test:browser
       - run: python3 tools/package-release.py
       - name: Publish complete tested packages

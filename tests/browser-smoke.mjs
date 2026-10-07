@@ -1,18 +1,19 @@
 // Browser integration uses clearly synthetic provider fixtures; the model is real.
 import {chromium} from 'playwright';
 import {spawn} from 'node:child_process';
-import {mkdir,writeFile} from 'node:fs/promises';
+import {mkdir,writeFile,readdir} from 'node:fs/promises';
 import assert from 'node:assert/strict';
 const root=new URL('../',import.meta.url),base='http://127.0.0.1:4173';
 await mkdir(new URL('test-results/',root),{recursive:true});
 const server=spawn(process.execPath,['tools/serve.mjs'],{cwd:root,stdio:'inherit'});
-let browser;
+let browser,page;
 const results={checks:[],externalRequests:[],inference:null,errors:[]};
 try{
   for(let i=0;i<50;i++){try{if((await fetch(base)).ok)break;}catch{}await new Promise(r=>setTimeout(r,200));}
-  browser=await chromium.launch({headless:true,args:['--enable-unsafe-webgpu','--use-angle=swiftshader','--enable-features=Vulkan','--disable-vulkan-surface']});
+  const icds=await readdir('/usr/share/vulkan/icd.d');const lavapipe=icds.find(x=>x.startsWith('lvp')&&x.endsWith('.json'));assert.ok(lavapipe,'Mesa Lavapipe Vulkan driver must be installed');
+  browser=await chromium.launch({channel:'chromium',headless:true,env:{...process.env,VK_ICD_FILENAMES:'/usr/share/vulkan/icd.d/'+lavapipe},args:['--enable-unsafe-webgpu','--use-angle=vulkan','--enable-features=Vulkan','--disable-vulkan-surface']});
   const context=await browser.newContext({acceptDownloads:true});
-  const page=await context.newPage();
+  page=await context.newPage();
   page.on('pageerror',e=>results.errors.push(e.message));
   page.on('console',msg=>{if(['error','warning'].includes(msg.type()))console.log('BROWSER_CONSOLE',msg.type(),msg.text());});
   context.on('request',r=>{if(!r.url().startsWith(base)&&!r.url().startsWith('data:')&&!r.url().startsWith('blob:'))results.externalRequests.push(r.url());});
@@ -37,6 +38,7 @@ try{
   console.log('GPU_STATUS',await page.locator('#device-info').innerText());
   const gpu=await page.evaluate(async()=>{const adapter=await navigator.gpu?.requestAdapter();return adapter?{limits:{buffer:adapter.limits.maxStorageBufferBindingSize},info:{vendor:adapter.info?.vendor,architecture:adapter.info?.architecture,device:adapter.info?.device}}:null;});
   assert.ok(gpu,'CI WebGPU adapter is required for real model verification');results.gpu=gpu;
+  console.log('GPU_ADAPTER',JSON.stringify(gpu));
   await page.locator('#load-model').click();
   console.log('MODEL_LOAD_STARTED');
   await page.waitForFunction(()=>!document.querySelector('#run').disabled||!document.querySelector('#load-model').disabled,null,{timeout:900000});
@@ -45,6 +47,8 @@ try{
   results.checks.push('Bundled Qwen model and WASM loaded from same-origin files.');
   const start=Date.now();await page.locator('#run').click();
   console.log('REAL_INFERENCE_STARTED');
+  await page.waitForFunction(()=>document.querySelector('#detail').textContent.includes('running')||document.querySelector('#status').classList.contains('error'),null,{timeout:15000});
+  assert.match(await page.locator('#detail').innerText(),/running/,'The UI must create and start the run');
   await page.waitForFunction(()=>document.querySelector('#status').textContent.includes('Run completed')||document.querySelector('#detail').textContent.includes('failed'),null,{timeout:600000});
   assert.match(await page.locator('#status').innerText(),/Run completed/,'Real model run must finish with valid JSON and references');
   assert.equal(await page.locator('.record .SIMULATED').count(),1);
@@ -64,5 +68,5 @@ try{
   const disabled=await browser.newContext();await disabled.addInitScript(()=>Object.defineProperty(navigator,'gpu',{value:undefined}));const noGPU=await disabled.newPage();await noGPU.goto(base+'/scenario-lab/');await noGPU.waitForFunction(()=>document.querySelector('#device-info').textContent.includes('WebGPU is unavailable'));assert.equal(await noGPU.locator('#run').isDisabled(),true);await disabled.close();
   results.checks.push('Unsupported devices retain evidence browsing and cannot start AI.');
   console.log('BROWSER_TEST_RESULT',JSON.stringify(results));
-}catch(error){results.failure=error.stack;console.error(error);process.exitCode=1;}
+}catch(error){results.failure=error.stack;if(page){results.ui=await page.evaluate(()=>({status:document.querySelector('#status')?.textContent,detail:document.querySelector('#detail')?.textContent?.slice(0,2500)})).catch(()=>null);console.error('FAILED_UI',JSON.stringify(results.ui));await page.screenshot({path:new URL('test-results/failure.png',root).pathname,fullPage:true}).catch(()=>{});}console.error(error);process.exitCode=1;}
 finally{await writeFile(new URL('test-results/browser-results.json',root),JSON.stringify(results,null,2));await browser?.close();server.kill();}
