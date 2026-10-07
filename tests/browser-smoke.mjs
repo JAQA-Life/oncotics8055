@@ -11,7 +11,7 @@ let browser,page;
 const results={checks:[],externalRequests:[],inference:null,errors:[]};
 try{
   for(let i=0;i<50;i++){try{if((await fetch(base)).ok)break;}catch{}await new Promise(r=>setTimeout(r,200));}
-  browser=await chromium.launch({channel:'chromium',headless:true,args:['--enable-unsafe-webgpu','--enable-webgpu-developer-features','--use-webgpu-adapter=default']});
+  browser=await chromium.launch({channel:'chromium',headless:true,args:['--enable-unsafe-webgpu','--use-angle=swiftshader','--use-webgpu-adapter=swiftshader']});
   const context=await browser.newContext({acceptDownloads:true});
   page=await context.newPage();
   page.on('pageerror',e=>results.errors.push(e.message));
@@ -44,6 +44,8 @@ try{
   await page.waitForFunction(()=>!document.querySelector('#run').disabled||!document.querySelector('#load-model').disabled,null,{timeout:900000});
   assert.equal(await page.locator('#run').isEnabled(),true,await page.locator('#status').innerText());
   console.log('MODEL_LOADED');
+  const probe=await page.evaluate(async()=>{const m=await import('/scenario-lab/model.mjs'),controller=new AbortController();const timer=setTimeout(()=>controller.abort(),180000);try{return await m.generate('Output a very short JSON object: {"statement":"Hypothetical meeting.","references":[],"uncertainty":"Unverified."}',controller.signal,['R1']);}finally{clearTimeout(timer);}});
+  assert.equal(typeof JSON.parse(probe).statement,'string');console.log('REAL_MODEL_PROBE_PASSED');
   results.checks.push('Bundled Qwen model and WASM loaded from same-origin files.');
   const start=Date.now();await page.locator('#run').click();
   console.log('REAL_INFERENCE_STARTED');
