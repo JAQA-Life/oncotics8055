@@ -1,20 +1,26 @@
 // Browser integration uses clearly synthetic provider fixtures; the model is real.
 import {chromium} from 'playwright';
 import {spawn} from 'node:child_process';
-import {mkdir,writeFile} from 'node:fs/promises';
+import {mkdir,writeFile,mkdtemp,rm} from 'node:fs/promises';
+import {tmpdir} from 'node:os';
+import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import assert from 'node:assert/strict';
 const root=new URL('../',import.meta.url),base='http://127.0.0.1:4173';
 await mkdir(new URL('test-results/',root),{recursive:true});
 const server=spawn(process.execPath,['tools/serve.mjs'],{cwd:root,stdio:'inherit'});
-let browser,page;
+let browser,page,context,profile;
 const results={checks:[],externalRequests:[],inference:null,errors:[]};
 try{
   for(let i=0;i<50;i++){try{if((await fetch(base)).ok)break;}catch{}await new Promise(r=>setTimeout(r,200));}
-  browser=await chromium.launch({channel:'chromium',headless:true,args:['--enable-unsafe-webgpu','--use-angle=swiftshader','--use-webgpu-adapter=swiftshader']});
-  const context=await browser.newContext({acceptDownloads:true});
+  // A normal disk-backed profile is required for this multi-gigabyte model.
+  // Incognito contexts use a smaller memory-backed storage quota.
+  profile=await mkdtemp(path.join(tmpdir(),'oncotics-browser-'));
+  context=await chromium.launchPersistentContext(profile,{channel:'chromium',headless:true,acceptDownloads:true,args:['--enable-unsafe-webgpu','--use-angle=swiftshader','--use-webgpu-adapter=swiftshader']});
+  browser=context.browser();
   page=await context.newPage();
   page.on('pageerror',e=>results.errors.push(e.message));
+  context.on('requestfailed',r=>console.error('REQUEST_FAILED',new URL(r.url()).pathname,r.failure()?.errorText));
   page.on('console',msg=>{if(['error','warning'].includes(msg.type())||msg.text().startsWith('AI_STAGE'))console.log('BROWSER_CONSOLE',msg.type(),msg.text());});
   context.on('request',r=>{if(!r.url().startsWith(base)&&!r.url().startsWith('data:')&&!r.url().startsWith('blob:'))results.externalRequests.push(r.url());});
   await context.route('https://clinicaltrials.gov/api/v2/studies*',route=>route.fulfill({status:200,contentType:'application/json',headers:{'access-control-allow-origin':'*'},body:JSON.stringify({studies:[{protocolSection:{identificationModule:{nctId:'NCT00000001',briefTitle:'Synthetic CI fixture: stakeholder research coordination'},contactsLocationsModule:{locations:[{facility:'Synthetic CI facility',geoPoint:{lat:20,lon:77}}]}}}]})}));
@@ -39,6 +45,7 @@ try{
   const gpu=await page.evaluate(async()=>{const adapter=await navigator.gpu?.requestAdapter();return adapter?{limits:{buffer:adapter.limits.maxStorageBufferBindingSize},info:{vendor:adapter.info?.vendor,architecture:adapter.info?.architecture,device:adapter.info?.device}}:null;});
   assert.ok(gpu,'CI WebGPU adapter is required for real model verification');results.gpu=gpu;
   console.log('GPU_ADAPTER',JSON.stringify(gpu));
+  results.storage=await page.evaluate(()=>navigator.storage.estimate());console.log('STORAGE_ESTIMATE',JSON.stringify(results.storage));
   await page.locator('#load-model').click();
   console.log('MODEL_LOAD_STARTED');
   await page.waitForFunction(()=>!document.querySelector('#run').disabled||!document.querySelector('#load-model').disabled,null,{timeout:900000});
@@ -69,4 +76,4 @@ try{
   results.checks.push('Unsupported devices retain evidence browsing and cannot start AI.');
   console.log('BROWSER_TEST_RESULT',JSON.stringify(results));
 }catch(error){results.failure=error.stack;if(page){results.ui=await page.evaluate(()=>({status:document.querySelector('#status')?.textContent,detail:document.querySelector('#detail')?.textContent?.slice(0,2500)})).catch(()=>null);console.error('FAILED_UI',JSON.stringify(results.ui));await page.screenshot({path:fileURLToPath(new URL('test-results/failure.png',root)),fullPage:true}).catch(()=>{});}console.error(error);process.exitCode=1;}
-finally{await writeFile(new URL('test-results/browser-results.json',root),JSON.stringify(results,null,2));await browser?.close();server.kill();}
+finally{await writeFile(new URL('test-results/browser-results.json',root),JSON.stringify(results,null,2));await context?.close();server.kill();if(profile)await rm(profile,{recursive:true,force:true});}

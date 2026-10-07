@@ -2,6 +2,8 @@
 
 Use `Oncotics-Hostinger-Upload.zip`, which already contains the complete site, imaging assets, AI runtime and model weights. You do not need a VPS. AI runs on the visitor's compatible device; Hostinger serves files.
 
+Use a normal browser window for the 3B model, with several GB of free disk space. Private/incognito windows can impose smaller cache quotas. If model download or caching fails, check that all model assets are present and that the browser has enough storage. Export saved scenarios and imaging data before clearing any site storage.
+
 ## Recommended: File Manager
 
 1. Back up your existing domain files using Hostinger before replacing them. Prefer a staging domain or subdomain for the first upload.

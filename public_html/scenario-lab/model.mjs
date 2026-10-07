@@ -30,7 +30,7 @@ export async function loadModel(onProgress=()=>{},signal){
     const loaded=CreateWebWorkerMLCEngine(worker,manifest.id,{appConfig:{model_list:[{model_id:manifest.id,model:new URL(manifest.model_base,location.origin).href,model_lib:new URL(manifest.model_lib,location.origin).href,overrides:{context_window_size:4096,prefill_chunk_size:128},vram_required_MB:manifest.vram_required_MB,buffer_size_required_bytes:manifest.buffer_size_required_bytes,required_features:manifest.required_features||[]}],useIndexedDBCache:true},initProgressCallback:onProgress},{context_window_size:4096,prefill_chunk_size:128});
     engine=await bounded(Promise.race([loaded,workerFault]),signal,()=>worker?.terminate());
     return identity();
-  }catch(e){worker?.terminate();worker=undefined;engine=undefined;throw asError(e);}
+  }catch(e){worker?.terminate();worker=undefined;engine=undefined;const error=asError(e);if(/ArtifactIndexedDBCache failed to fetch|QuotaExceeded/i.test(error.message))throw Error('Model files could not be downloaded or cached. Use a normal browser window with several GB of free disk space, and check that all model files were uploaded. Export saved scenarios before clearing site storage.');throw error;}
 }
 export function identity(){if(!engine||!manifest)throw Error('Load the browser model before running.');return {id:manifest.id,revision:manifest.revision,webllm_version:manifest.webllm_version,runtime:'WebLLM / WebGPU on this device',provenance:'DERIVED'};}
 export function ready(){return Boolean(engine);}
