@@ -11,6 +11,8 @@ concurrency:
 jobs:
   browser:
     runs-on: ubuntu-24.04
+    permissions:
+      contents: write
     timeout-minutes: 40
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
@@ -25,6 +27,13 @@ jobs:
       - run: npm run build
       - run: npx playwright install --with-deps chromium
       - run: npm run test:browser
+      - run: python3 tools/package-release.py
+      - name: Publish complete tested packages
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          tag="browser-ai-v1-${GITHUB_RUN_ID}"
+          gh release create "$tag" release/Oncotics-Hostinger-Upload.zip release/Oncotics-Browser-AI-Complete-Project.zip release/HOSTINGER-UPLOAD.md release/SHA256SUMS.txt release/BUILD-RESULTS.json --target "$GITHUB_SHA" --title "Oncotics Browser AI — Hostinger upload" --notes-file docs/RELEASE-NOTES.md
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: always()
         with:
@@ -35,4 +44,5 @@ jobs:
             public_html/scenario-lab/model-client.mjs*
             package-lock.json
             test-results/
+            release/BUILD-RESULTS.json
           retention-days: 7

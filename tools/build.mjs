@@ -9,6 +9,8 @@ for(const item of manifest.files){const file=path.resolve(publicRoot,item.path);
 const packs=JSON.parse(await readFile(path.join(root,'docs/model-integrity.json')));
 for(const pack of packs){const bytes=await readFile(path.join(publicRoot,'assets/models',pack.id,'model.onnx'));if(bytes.length!==pack.bytes||createHash('sha256').update(bytes).digest('hex')!==pack.sha256)throw Error('Existing imaging model changed: '+pack.id);}
 await stat(path.join(publicRoot,'assets/ohif/index.html'));
+const original=JSON.parse(await readFile(path.join(root,'docs/static-integrity.json')));
+for(const item of original){const bytes=await readFile(path.join(publicRoot,item.path));if(bytes.length!==item.bytes||createHash('sha256').update(bytes).digest('hex')!==item.sha256)throw Error('Original asset/page changed: '+item.path);}
 await mkdir(path.join(root,'dist'),{recursive:true});
 await cp(publicRoot,path.join(root,'dist'),{recursive:true});
-console.log('Build verified: self-hosted WebLLM, '+packs.length+' original ONNX models, OHIF and original Oncotics pages.');
+console.log('Build verified: self-hosted WebLLM, '+packs.length+' original ONNX models, and '+original.length+' unchanged original assets/workspace/imaging pages.');

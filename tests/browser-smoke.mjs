@@ -37,7 +37,8 @@ try{
   const gpu=await page.evaluate(async()=>{const adapter=await navigator.gpu?.requestAdapter();return adapter?{limits:{buffer:adapter.limits.maxStorageBufferBindingSize},info:{vendor:adapter.info?.vendor,architecture:adapter.info?.architecture,device:adapter.info?.device}}:null;});
   assert.ok(gpu,'CI WebGPU adapter is required for real model verification');results.gpu=gpu;
   await page.locator('#load-model').click();
-  await page.waitForFunction(()=>!document.querySelector('#run').disabled,null,{timeout:900000});
+  await page.waitForFunction(()=>!document.querySelector('#run').disabled||!document.querySelector('#load-model').disabled,null,{timeout:900000});
+  assert.equal(await page.locator('#run').isEnabled(),true,await page.locator('#status').innerText());
   results.checks.push('Bundled Qwen model and WASM loaded from same-origin files.');
   const start=Date.now();await page.locator('#run').click();
   await page.waitForFunction(()=>document.querySelector('#status').textContent.includes('Run completed')||document.querySelector('#detail').textContent.includes('failed'),null,{timeout:600000});

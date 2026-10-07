@@ -1,0 +1,8 @@
+node_modules/
+dist/
+release/
+test-results/
+public_html/assets/browser-ai/
+public_html/scenario-lab/model-client.mjs*
+public_html/scenario-lab/model-worker.mjs*
+public_html/scenario-lab/source-code.zip
