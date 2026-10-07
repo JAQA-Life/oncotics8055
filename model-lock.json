@@ -1,0 +1,6 @@
+{
+  "repo": "mlc-ai/Qwen2.5-0.5B-Instruct-q4f32_1-MLC",
+  "revision": "8e6ec5f417c7d0e1414703ef619b8a24686e3ab0",
+  "model_id": "Qwen2.5-0.5B-Instruct-q4f32_1-MLC",
+  "webllm_version": "0.2.79"
+}

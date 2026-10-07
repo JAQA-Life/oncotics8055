@@ -6,7 +6,7 @@ globalThis.fetch = (input, init) => {
   if (url.origin !== self.location.origin || !url.pathname.startsWith('/assets/browser-ai/')) {
     throw new Error('Browser AI only loads its self-hosted model assets.');
   }
-  return nativeFetch(input, {...init, credentials:'omit', referrerPolicy:'no-referrer'});
+  return nativeFetch(input, {...init, mode:'same-origin', redirect:'error', credentials:'omit', referrerPolicy:'no-referrer'});
 };
 const handler = new WebWorkerMLCEngineHandler();
 self.onmessage = message => handler.onmessage(message);

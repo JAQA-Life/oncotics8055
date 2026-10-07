@@ -33,7 +33,7 @@ Visit each of these paths on your own HTTPS domain:
 - `/assets/browser-ai/model.wasm` — runtime must download successfully.
 - `/scenario-lab/source-code.zip` — source offer must remain available.
 
-On a current WebGPU-compatible browser with hardware acceleration, open Scenario Lab and click **Load AI on this device**. The first load transfers roughly 330 MB of model/runtime assets; the exact total is displayed from the included manifest. Browser caching may avoid later full downloads. GPU memory, browser support and disk quotas vary by device; a weak phone or unsupported browser may be unable to run the model.
+On a current WebGPU-compatible browser with hardware acceleration, open Scenario Lab and click **Load AI on this device**. The first load transfers roughly 320 MB of model/runtime assets; the exact total is displayed from the included manifest. Browser caching may avoid later full downloads. GPU memory, browser support and disk quotas vary by device; a weak phone or unsupported browser may be unable to run the model.
 
 Confirm public, non-patient research use. Retrieve a narrow public query, inspect source records and coverage, enter explicit assumptions, then confirm review. Start with **one stakeholder and one round**. Inspect the synthetic agent and labeled report, export JSON, reload and reopen the saved run. Runs need an open tab. Each browser profile has its own records; there is no shared account, server history or background job queue.
 
