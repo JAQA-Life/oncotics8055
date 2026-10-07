@@ -60,6 +60,13 @@ AddType application/octet-stream .onnx .bin
   <FilesMatch "\.(txt|xml)$">
     Header set Cache-Control "public, max-age=86400"
   </FilesMatch>
+  # Keep these overrides after general asset rules so manifests and Scenario Lab code refresh.
+  <Files "manifest.json">
+    Header set Cache-Control "no-cache, must-revalidate"
+    Header always set Cache-Control "no-cache, must-revalidate"
+  </Files>
+  Header set Cache-Control "no-cache, must-revalidate" env=SCENARIO_BROWSER
+  Header always set Cache-Control "no-cache, must-revalidate" env=SCENARIO_BROWSER
 </IfModule>
 
 <IfModule mod_deflate.c>
