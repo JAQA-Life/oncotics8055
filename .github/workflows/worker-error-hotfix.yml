@@ -1,0 +1,47 @@
+name: Browser structured error patch
+on:
+  push:
+    branches: [codex/browser-simulation-fix]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  patch:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38
+        with:
+          node-version: '24'
+      - run: npm install --ignore-scripts
+      - run: npm test
+      - run: node tests/worker-sdk.check.mjs
+      - run: node tools/bundle-worker-hotfix.mjs
+      - name: Acquire and prepare verified base manifest
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p work/base-release public_html/assets/browser-ai
+          gh release download browser-ai-qwen3b-v1-37613223926 --pattern Oncotics-Hostinger-Upload.zip --dir work/base-release
+          python - <<'PY'
+          from pathlib import Path
+          import zipfile, hashlib
+          file = Path('work/base-release/Oncotics-Hostinger-Upload.zip')
+          with file.open('rb') as stream:
+              assert hashlib.file_digest(stream, 'sha256').hexdigest() == '55e74176750b5d9b167067c1fc305b356a1247c0dd0c48101b2fe42589548e0f'
+          with zipfile.ZipFile(file) as archive:
+              Path('public_html/assets/browser-ai/manifest.json').write_bytes(archive.read('assets/browser-ai/manifest.json'))
+          PY
+      - run: npx playwright install --with-deps chromium
+      - run: node tests/worker-fault-browser.mjs
+      - run: python tools/package-worker-hotfix.py
+      - name: Publish patch
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "browser-worker-error-patch-${GITHUB_RUN_ID}" release/Oncotics-Qwen3B-Worker-Error-Patch.zip release/PATCH-INSTRUCTIONS.md release/PATCH-RESULTS.json release/SHA256SUMS.txt --target "$GITHUB_SHA" --title "Oncotics browser worker error diagnostic patch" --notes-file docs/WORKER-ERROR-PATCH.md

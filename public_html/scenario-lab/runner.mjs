@@ -1,4 +1,5 @@
 import {ROLES,digest,verifySnapshot,seedFor,promptFor,parseEvent,reportFor,validateSpec} from './core.mjs';
+import {errorMessage} from './errors.mjs';
 export async function newJob(spec,envelope,model){spec=validateSpec(spec);await verifySnapshot(envelope);if(!envelope.snapshot.records.length)throw Error('Retrieve or import supported evidence before running.');if(Date.now()-envelope.snapshot.created_at>86400000)throw Error('Retrieve current evidence; the snapshot is older than 24 hours.');const seed=seedFor(envelope);return {schema:'oncotics-browser-scenario/1',id:crypto.randomUUID(),spec,snapshot_id:envelope.id,evidence_sha256:envelope.sha256,seed,seed_sha256:await digest(seed),model:structuredClone(model),agents:ROLES.slice(0,spec.agents).map(x=>({...x,provenance:'SIMULATED'})),events:[],next_step:0,state:'ready',stage:'ready',progress:0,created_at:Date.now(),research_only:true};}
 export async function runJob(job,{store,envelope,generate,signal,onChange=()=>{}}){
   await verifySnapshot(envelope);
@@ -19,6 +20,6 @@ export async function runJob(job,{store,envelope,generate,signal,onChange=()=>{}
       onChange(job);
     }
     signal?.throwIfAborted();job.report=reportFor(job);job.simulation_graph={provenance:'SIMULATED',nodes:job.agents.map(a=>({id:a.id,label:a.name,provenance:'SIMULATED'})),edges:job.events.slice(1).map((e,i)=>({from:job.events[i].agent_id,to:e.agent_id,relation:'responded_after',provenance:'SIMULATED',meaning:'Generation order, not a real stakeholder relationship'}))};job.state='completed';job.stage='completed';job.progress=100;await store.save(job);onChange(job);
-  }catch(e){job.state=signal?.aborted?'paused':'failed';job.stage=job.state;job.error=e.name==='QuotaExceededError'?'Browser storage is full. Export existing runs, free storage and reload.':signal?.aborted?'Paused after the last saved step. Resume when ready.':e.message;try{await store.save(job);}catch{job.error+=' The latest state could not be saved.';}onChange(job);throw e;}
+  }catch(e){job.state=signal?.aborted?'paused':'failed';job.stage=job.state;job.error=e?.name==='QuotaExceededError'?'Browser storage is full. Export existing runs, free storage and reload.':signal?.aborted?'Paused after the last saved step. Resume when ready.':errorMessage(e);try{await store.save(job);}catch{job.error+=' The latest state could not be saved.';}onChange(job);throw e;}
   return job;
 }

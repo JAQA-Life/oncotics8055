@@ -1,6 +1,6 @@
 // Model execution is confined to a dedicated same-origin WebGPU worker.
+import {asError} from './errors.mjs';
 let engine,worker,manifest,workerFault;
-const asError=value=>value instanceof Error?value:Error(typeof value==='string'?value:value?.message||JSON.stringify(value));
 async function bounded(operation,signal,onStop=()=>{}){
   signal?.throwIfAborted();let timer,abort;
   const stop=new Promise((_,reject)=>{abort=()=>{onStop();reject(signal.reason||new DOMException('Cancelled','AbortError'));};signal?.addEventListener('abort',abort,{once:true});timer=setTimeout(()=>{onStop();reject(Error('AI operation timed out on this device. The last completed step remains saved.'));},5400000);});
@@ -24,7 +24,7 @@ export async function modelManifest(){
 export async function loadModel(onProgress=()=>{},signal){
   signal?.throwIfAborted();await inspectDevice();manifest=await modelManifest();signal?.throwIfAborted();
   const {CreateWebWorkerMLCEngine}=await import('./model-client.mjs');signal?.throwIfAborted();
-  worker=new Worker('/scenario-lab/model-worker.mjs',{type:'module'});
+  worker=new Worker('/scenario-lab/model-worker.mjs?v=worker-errors-1',{type:'module'});
   workerFault=new Promise((_,reject)=>{worker.onerror=event=>reject(Error('AI worker failed: '+(event.message||'runtime error')));});
   try{
     const loaded=CreateWebWorkerMLCEngine(worker,manifest.id,{appConfig:{model_list:[{model_id:manifest.id,model:new URL(manifest.model_base,location.origin).href,model_lib:new URL(manifest.model_lib,location.origin).href,overrides:{context_window_size:4096,prefill_chunk_size:128},vram_required_MB:manifest.vram_required_MB,buffer_size_required_bytes:manifest.buffer_size_required_bytes,required_features:manifest.required_features||[]}],useIndexedDBCache:true},initProgressCallback:onProgress},{context_window_size:4096,prefill_chunk_size:128});

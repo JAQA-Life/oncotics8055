@@ -1,5 +1,6 @@
 // AGPL-3.0-or-later. The runtime cannot send prompts to external hosts.
 import { WebWorkerMLCEngineHandler } from '@mlc-ai/web-llm';
+import { preservingWorkerHandler } from './worker-handler.mjs';
 const nativeFetch = globalThis.fetch.bind(globalThis);
 globalThis.fetch = (input, init) => {
   const url = new URL(typeof input === 'string' ? input : input instanceof URL ? input.href : input.url, self.location.href);
@@ -8,7 +9,8 @@ globalThis.fetch = (input, init) => {
   }
   return nativeFetch(input, {...init, mode:'same-origin', redirect:'error', credentials:'omit', referrerPolicy:'no-referrer'});
 };
-const handler = new WebWorkerMLCEngineHandler();
+const Handler = preservingWorkerHandler(WebWorkerMLCEngineHandler);
+const handler = new Handler();
 self.onmessage = message => {
   const kind=message.data?.kind;
   console.debug('AI_STAGE worker',kind);
