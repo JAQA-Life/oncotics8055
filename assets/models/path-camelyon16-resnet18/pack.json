@@ -1,0 +1,74 @@
+{
+  "schema": "oncotics-model-pack/1",
+  "id": "path-camelyon16-resnet18",
+  "task": "pathology-patch",
+  "notForUse": false,
+  "card": {
+    "name": "MONAI pathology tumour detection (ResNet-18)",
+    "version": "pathology_tumor_detection 0.6.2",
+    "source": "MONAI Model Zoo (Project MONAI)",
+    "link": "https://github.com/Project-MONAI/model-zoo/tree/dev/models/pathology_tumor_detection",
+    "license": "Apache-2.0 (see LICENSE in this pack)",
+    "trainingData": "Camelyon dataset",
+    "intendedUse": "Research and education: scores 224 \u00d7 224 px patches of H&E-stained lymph-node tissue for metastatic tumour and shows a tumour-probability heatmap. It does not diagnose cancer.",
+    "validationStatus": "Research model from the MONAI Model Zoo; not clinically validated or cleared.",
+    "modality": [
+      "Digital pathology, H&E (lymph node)"
+    ],
+    "imageTypes": [
+      "PNG",
+      "JPEG",
+      "TIFF tile (RGB)"
+    ],
+    "limitations": [
+      "Trained on lymph-node sections at the highest magnification of Camelyon16 slides; other tissues, stains or magnifications give unreliable scores",
+      "Works on image tiles you upload, not on whole-slide files",
+      "Patches are scored independently, without slide context"
+    ],
+    "failureModes": [
+      "Stain and scanner differences",
+      "Tissue folds, blur and ink",
+      "Isolated tumour cells and micrometastases"
+    ],
+    "calibrated": false,
+    "confidenceMeaning": "Model sigmoid output per patch (0\u20131). It is not a calibrated probability of cancer.",
+    "regulatoryStatus": "None (research model)",
+    "lastVerified": "2026-10-03",
+    "bundleDescription": "A pre-trained model for metastasis detection on Camelyon 16 dataset."
+  },
+  "input": {
+    "name": "patch",
+    "channels": 3,
+    "patch": 224,
+    "layout": "NCHW",
+    "scale": 0.00784313725490196,
+    "offset": -1.0,
+    "note": "RGB value v in 0..255 -> v*scale + offset (bundle ScaleIntensityRanged a_min=0 a_max=255 b_min=-1 b_max=1)"
+  },
+  "output": {
+    "logit": "logit",
+    "activation": "sigmoid"
+  },
+  "labels": [
+    "Tumour (metastasis)"
+  ],
+  "verification": {
+    "maxAbsDiffLogit": 3.0994415283203125e-06,
+    "samples": 4,
+    "reference": "bundle network_def + models/model.pt in PyTorch"
+  },
+  "sourceBundle": {
+    "name": "pathology_tumor_detection",
+    "version": "0.6.2",
+    "downloadedFrom": "monaihosting"
+  },
+  "model": "model.onnx",
+  "sizeBytes": 44702485,
+  "sha256": "0b9e194bc0efc8de568adcbc63f07bb9511e98b74c93297c503281b3b11fad99",
+  "builtAt": "2026-10-03T12:42:15Z",
+  "builtWith": {
+    "torch": "2.4.1+cpu",
+    "onnx": "1.23.1",
+    "onnxruntime": "1.30.0"
+  }
+}

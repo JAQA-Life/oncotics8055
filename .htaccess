@@ -1,0 +1,76 @@
+# Oncotics — Hostinger (LiteSpeed/Apache) configuration
+Options -Indexes
+DirectoryIndex index.html
+ErrorDocument 404 /404.html
+AddDefaultCharset UTF-8
+AddType application/manifest+json .webmanifest
+AddType image/webp .webp
+AddType text/plain .txt
+AddType application/wasm .wasm
+AddType text/javascript .mjs
+  AddType application/octet-stream .onnx
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  # Force HTTPS and the bare domain (https://oncotics.com)
+  RewriteCond %{HTTPS} off [OR]
+  RewriteCond %{HTTP_HOST} ^www\.oncotics\.com$ [NC]
+  RewriteRule ^(.*)$ https://oncotics.com/$1 [L,R=301]
+  # Friendly aliases for the Workspace
+  RewriteRule ^workspace/?$ /precision-oncology-workspace/ [L,R=301]
+  RewriteRule ^precision-oncology-workspace\.html$ /precision-oncology-workspace/ [L,R=301]
+  # Imaging Workbench aliases
+  RewriteRule ^ohif/?$ /imaging/ [L,R=301]
+  RewriteRule ^imaging-workbench/?$ /imaging/ [L,R=301]
+  # Self-hosted OHIF Viewer (single-page app): client routes fall back to its index.html
+  RewriteCond %{REQUEST_URI} ^/assets/ohif/
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule ^assets/ohif/ /assets/ohif/index.html [L]
+  # Drop explicit index.html from URLs (canonical folder URLs)
+  RewriteCond %{THE_REQUEST} \s/+(.*/)?index\.html[\s?] [NC]
+  RewriteRule ^(.*/)?index\.html$ /%1 [L,R=301]
+</IfModule>
+
+<IfModule mod_headers.c>
+  Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set X-Frame-Options "SAMEORIGIN"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+  Header always set Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()"
+  Header always set Cross-Origin-Opener-Policy "same-origin"
+  # Imaging Workbench (+ its same-origin OHIF iframe and ONNX Runtime workers): cross-origin isolation lets the in-browser
+  # 3D AI models use several WebAssembly threads. "credentialless" keeps CORS fetches to
+  # DICOMweb/public APIs working. Browsers without support simply run single-threaded.
+  SetEnvIf Request_URI "^/(imaging|assets/ohif|assets/ort)(/|$)" OI_ISOLATE
+  Header always set Cross-Origin-Embedder-Policy "credentialless" env=OI_ISOLATE
+  # Content-Security-Policy is set per page with <meta> tags (the Workspace needs its own API allow-list).
+  <FilesMatch "\.(html)$">
+    Header set Cache-Control "no-cache, must-revalidate"
+  </FilesMatch>
+  # Self-hosted globe (CesiumJS) and inference runtime (ONNX Runtime Web) assets
+  <FilesMatch "\.(wasm|mjs|glb|ktx2|json|onnx)$">
+    Header set Cache-Control "public, max-age=2592000"
+  </FilesMatch>
+  <FilesMatch "\.(css|js|png|jpg|jpeg|webp|svg|ico|webmanifest)$">
+    Header set Cache-Control "public, max-age=2592000"
+  </FilesMatch>
+  <FilesMatch "\.(txt|xml)$">
+    Header set Cache-Control "public, max-age=86400"
+  </FilesMatch>
+</IfModule>
+
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/css text/plain text/xml application/xml application/json application/ld+json image/svg+xml application/manifest+json
+</IfModule>
+
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresByType text/html "access plus 0 seconds"
+  ExpiresByType text/css "access plus 30 days"
+  ExpiresByType image/png "access plus 30 days"
+  ExpiresByType image/jpeg "access plus 30 days"
+  ExpiresByType image/webp "access plus 30 days"
+  ExpiresByType image/svg+xml "access plus 30 days"
+  ExpiresByType image/x-icon "access plus 30 days"
+</IfModule>

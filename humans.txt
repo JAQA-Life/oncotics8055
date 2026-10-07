@@ -1,0 +1,8 @@
+/* TEAM */
+Creator and Architect: Amit Suresh
+LinkedIn: https://www.linkedin.com/in/amit-suresh/
+
+/* SITE */
+Last update: 2026-10-03
+Standards: HTML5, CSS3, schema.org JSON-LD
+No cookies, no analytics, no trackers.

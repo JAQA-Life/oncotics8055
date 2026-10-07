@@ -1,0 +1,1 @@
+Patched: Knockout global lookup -> globalThis (CSP, no unsafe-eval)

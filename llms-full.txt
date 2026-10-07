@@ -1,0 +1,276 @@
+# Oncotics
+
+> Oncotics (oncotics.com) builds privacy-first precision oncology tools. Its flagship, the Oncotics Precision Oncology Workspace, is a free browser-based research workspace that shows live public evidence for any cancer gene, variant, drug, medical device, diagnostic, disease or clinical trial — clinical evidence, trials, FDA drug and device records, companion diagnostics, biology and literature — without storing searches. Educational and research use only; not medical, regulatory or procurement advice.
+
+Key facts:
+- Name: Oncotics. Website: https://oncotics.com/
+- Creator and Architect: Amit Suresh — IICA-certified Independent Director (Indian Institute of Corporate Affairs), Genetic Engineer, MBA in Healthcare Management, CFI Financial Modeling & Valuation Analyst (FMVA). LinkedIn: https://www.linkedin.com/in/amit-suresh/
+- Contact: LinkedIn message to Amit Suresh (no patient information).
+- Price: free; no account or sign-up.
+- Privacy: no backend, no cookies, no browser storage, no analytics; the browser queries public providers directly; nothing is stored; refresh or "Clear Session" wipes all data.
+- Live sources (19): CIViC, ClinicalTrials.gov, openFDA drug endpoints, openFDA device endpoints, Ensembl, MyGene.info, MyVariant.info, UniProt, Europe PMC, RxNorm, STRING, Reactome, AlphaFold DB, Open Targets Platform, cBioPortal, GWAS Catalog, ChEMBL, PubChem, EBI OLS.
+- Link-out sources: NCI Thesaurus, FDA 510(k)/De Novo/PMA/recall/classification databases, AccessGUDID, FDA companion-diagnostics list, MAUDE, MedWatch, Drugs@FDA, DailyMed, NCBI Gene, ClinVar, dbSNP, PubMed, OncoKB, COSMIC, DepMap, GTEx, Human Protein Atlas, WHO ICTRP, ISRCTN, ANZCTR, EU CTIS, EU CTR, Health Canada, TGA, EMA, PMDA, NMPA, MHRA, CDSCO, CTRI, jRCT.
+- Verify-on-request sources (documented public APIs, called only on explicit user action until verified from oncotics.com): OncoTree, NCI GDC (open access), DGIdb, Complex Portal, QuickGO, PDBe, EBI Proteins, OpenAlex, Crossref, Semantic Scholar.
+- Modules: Overview (search interpretation with heuristic confidence scores, Geographic Activity Globe, Molecular Context Map), Clinical Evidence, Trials, Drug Intelligence, Vaccines & Cancer Immunization, Devices & Dx, Onco-Fertility, Biology, Literature, Expert Knowledge & Patient Education, Relationship Explorer, Global Coverage, Comparison, Session Board, Advanced Query, Coverage Console, Session & Privacy.
+- Imaging Workbench (https://oncotics.com/imaging/): separate page powered by a self-hosted OHIF Viewer; memory-only DICOM/image viewing, measurement, annotation and opt-in experimental AI inference with a user-loaded model; not a radiology diagnostic system; nothing uploaded or stored.
+- No vaccine, fertility, pregnancy, contraception, genetic-counseling or radiological diagnostic advice.
+- Accepted queries: gene symbols (EGFR), variants (BRAF V600E), rsIDs, HGVS, drugs and brand names, diseases, NCT IDs and other registry IDs, PMIDs, DOIs, UniProt and Ensembl IDs, 510(k)/De Novo/PMA numbers, FDA product codes, regulation numbers, UDI-DIs.
+- Regulatory vocabulary: 510(k) = clearance; De Novo = classification; PMA = approval. openFDA device records may lag official FDA databases.
+
+## Pages
+- [Home](https://oncotics.com/): what Oncotics does, who benefits, how, when, why and where; FAQ.
+- [Precision Oncology Workspace](https://oncotics.com/precision-oncology-workspace/): the free research tool.
+- [Imaging Workbench](https://oncotics.com/imaging/): separate memory-only imaging page (OHIF Viewer, Oncotics Inspector, opt-in experimental AI).
+- [About](https://oncotics.com/about/): mission, principles, and Amit Suresh, Creator and Architect.
+- [Contact](https://oncotics.com/contact/): contact via LinkedIn.
+- [Privacy & disclaimer](https://oncotics.com/privacy/): privacy statement and medical/regulatory disclaimer.
+
+## Optional
+- [Full text for AI assistants](https://oncotics.com/llms-full.txt)
+
+
+
+---
+
+# Home (https://oncotics.com/)
+
+Precision oncology · Live public evidence
+Every piece of public cancer evidence, in one private workspace.
+Oncotics brings live clinical evidence, clinical trials, FDA drug and device records, gene and protein biology, and literature together for any gene, variant, drug, device, diagnostic, disease or trial — without ever storing what you search.
+Open the free Workspace See how it works
+Free · no sign-up
+No cookies or tracking
+Searches never stored
+19 live public sources + verified-on-request extras
+Every fact shows its source
+Every query interpretation scored
+What Oncotics does What is Oncotics?
+Oncotics is a free, privacy-first precision oncology workspace. Type a gene, variant, drug, device, diagnostic, disease or trial ID and Oncotics works out what it is, asks the right public databases directly from your browser, and connects the answers: curated evidence, trials, FDA labels, approvals, safety signals, device clearances and approvals, companion diagnostics, protein biology and papers. Each result carries its source, retrieval time and a link to the official record.
+Clinical evidence
+Curated variant–drug–disease evidence and clinical assertions with evidence levels, AMP/ASCO/CAP tiers and citations.
+Source: CIViC
+Clinical trials
+Search by gene, variant, drug, device or condition; filter by status, phase, age and location; read full study details.
+Source: ClinicalTrials.gov
+Drug intelligence
+FDA labels, Drugs@FDA approval history, FAERS adverse-event summaries, enforcement reports, RxNorm names and chemistry.
+Sources: openFDA, RxNorm, ChEMBL, PubChem
+Devices & diagnostics
+510(k), De Novo and PMA records, classification, UDI, MAUDE events, recalls and companion-diagnostic links — with clearance and approval kept distinct.
+Source: openFDA device endpoints (may lag official FDA databases)
+Biology
+Gene and variant annotation, variant effect prediction, protein function, pathways, interactions, structures, cancer mutation frequency, target validation and GWAS.
+Sources: Ensembl, MyGene, MyVariant, UniProt, Reactome, STRING, AlphaFold, Open Targets, cBioPortal, GWAS Catalog
+Vaccines & cancer immunization
+Preventive cancer vaccines (HPV, hepatitis B), therapeutic cancer vaccines, antigens, vaccine trials, labels and official public-health link-outs. No vaccine advice, schedules or safety rankings.
+Sources: ClinicalTrials.gov, openFDA, Europe PMC, FDA CBER, CDC, WHO
+Onco-Fertility & survivorship
+Label reproductive-health sections, reproductive adverse-event terms, fertility-preservation trials, ART device records and guideline link-outs. No fertility, pregnancy or genetic-counseling advice.
+Sources: openFDA, ClinicalTrials.gov, Europe PMC, NCI, ASCO, ESHRE, ASRM, LactMed
+Interpretation, globe & molecular map
+Every plausible reading of your query with a heuristic confidence score; a 3D globe of public trial and recall locations; and a molecular context map of genes, proteins, drugs, trials and papers.
+Built in your browser from loaded public records
+Imaging Workbench
+A separate page for viewing DICOM and images with the OHIF Viewer or the Oncotics Inspector, measuring, annotating and — only if you choose — running experimental AI with your own model. Images stay in browser memory.
+Open the Imaging Workbench
+Literature
+Relevant papers with abstracts, open-access links and citation counts, filterable by year, reviews and open access.
+Source: Europe PMC
+Who benefits Who benefits from Oncotics, and how?
+Anyone who needs a fast, sourced overview of public precision oncology evidence — without jumping between a dozen websites or handing over their search history.
+How different people use Oncotics
+Who How Oncotics helps
+Cancer researchers See evidence, trials, biology and papers for a gene or variant on one screen, with sources to cite.
+Clinicians (for qualified review) Gather the published evidence, labels and open trials behind a biomarker before discussing it with colleagues — never as a treatment decision.
+Bioinformaticians Check variant consequences across Ensembl VEP and MyVariant, with transcript-level detail and conflicts shown side by side.
+Oncology pharmacists Review FDA label sections, approval history, adverse-event summaries and recalls for a drug in minutes.
+Clinical trial navigators Filter trials by biomarker, status, phase, age and location, and open full study records.
+Regulatory affairs & laboratory medicine Look up 510(k), De Novo and PMA records, product codes, UDI, MAUDE and recalls, and possible companion-diagnostic links.
+Students & educators Learn how genes, variants, drugs, trials and diagnostics connect, using real public data.
+How it works How does Oncotics work?
+Type anything
+A gene, variant, rsID, HGVS, drug or brand, disease, trial ID, PMID, device number, product code or UDI-DI.
+Oncotics interprets it
+It lists every plausible interpretation with a heuristic 0–100 confidence score and the signals behind it, and asks you to choose when a query is ambiguous. It never guesses silently.
+Your browser asks the sources
+A small set of live public sources is queried first, directly from your browser. Deeper sources load when you open them.
+Explore connected evidence
+Move from gene to variant to evidence, therapy, trial, FDA record, device and paper. Compare, pin and export — all in memory.
+When to use it When is Oncotics useful?
+Starting a literature review or grant background on a gene or biomarker.
+Checking which trials mention a variant such as KRAS G12C, and which are recruiting.
+Reviewing a drug’s current FDA label, approvals and reported adverse events.
+Confirming whether a diagnostic is FDA-cleared (510(k)), De Novo, or approved (PMA).
+Looking up an rsID or HGVS notation and its predicted consequence.
+Teaching precision oncology with real, sourced examples.
+Why Oncotics Why was Oncotics built?
+Precision oncology evidence is spread across many public databases, each with its own search, identifiers and caveats. Oncotics connects them in one place while staying honest: live data is labeled live, links are labeled links, fuzzy matches are never shown as exact, and every record points back to its official source.
+It is private because health-related searches are sensitive. There is no server to collect them.
+Where Where does the data come from, and where does Oncotics run?
+Oncotics runs in your web browser on any device — desktop, tablet or phone — at oncotics.com/precision-oncology-workspace/ . The data comes directly from these public providers:
+CIViC (opens in a new tab)
+curated clinical evidence for cancer variants
+ClinicalTrials.gov (opens in a new tab)
+registered clinical studies (U.S. National Library of Medicine)
+openFDA (opens in a new tab)
+FDA drug labels, approvals, adverse events, recalls, and device 510(k), De Novo, PMA, classification, UDI, MAUDE and recall records
+RxNorm (opens in a new tab)
+drug name normalization
+Ensembl (opens in a new tab)
+genome annotation and variant effect prediction (VEP)
+MyGene.info and MyVariant.info (opens in a new tab)
+aggregated gene and variant annotation, including ClinVar and dbSNP fields
+UniProt (opens in a new tab)
+protein function, domains and structures
+Reactome, STRING and AlphaFold DB (opens in a new tab)
+pathways, protein interactions and predicted structures
+Open Targets and cBioPortal (opens in a new tab)
+target–disease associations and cancer cohort mutation frequencies
+GWAS Catalog, ChEMBL, PubChem and EBI OLS (opens in a new tab)
+variant–trait associations, compound data and ontologies
+Europe PMC (opens in a new tab)
+biomedical literature, abstracts and open-access links
+Worldwide trial registries and regulators — WHO ICTRP, EU CTIS, ISRCTN, ANZCTR, CTRI, EMA, MHRA, PMDA, NMPA, TGA, Health Canada and CDSCO — are available as labeled official links from the Workspace’s Global Coverage panel.
+Privacy by design What happens to my searches?
+No account, cookies, browser storage, analytics or tracking pixels.
+No Oncotics server: requests go straight from your browser to the provider.
+Nothing is saved; refresh or Clear Session wipes everything.
+Exports are created on your device and never uploaded.
+Inputs that look like patient information are rejected.
+Read the full privacy statement
+What Oncotics is not Responsible by default
+Educational and research use only. Oncotics does not diagnose, recommend treatments or dosing, determine trial eligibility, or give regulatory or procurement advice.
+Computational predictions are not diagnoses, adverse-event reports do not prove causality, and openFDA device records may lag official FDA databases.
+FAQ Frequently asked questions
+What is Oncotics?
+Oncotics is a free, privacy-first precision oncology research workspace at oncotics.com. You type a gene, variant, drug, device, diagnostic, disease or trial ID, and Oncotics shows live public evidence about it — clinical evidence, trials, FDA drug and device records, biology and literature — in one place, with the source of every fact.
+Who is Oncotics for?
+Cancer researchers, clinicians preparing for qualified review, bioinformaticians, oncology pharmacists, clinical trial navigators, regulatory affairs and laboratory medicine teams, biomedical students and anyone learning precision oncology.
+Is Oncotics free? Do I need an account?
+Yes, it is free, and no account is needed. Open the Precision Oncology Workspace and start searching.
+Does Oncotics store my searches?
+No. Oncotics has no backend, database, cookies, browser storage or analytics. Your browser sends each request directly to the public data provider, and everything is cleared when you refresh the page or press Clear Session. Each provider may log requests under its own policy.
+Where does the data come from?
+From public, documented sources including CIViC, ClinicalTrials.gov, openFDA, RxNorm, Ensembl, MyGene.info, MyVariant.info, UniProt, Reactome, STRING, AlphaFold DB, Open Targets, cBioPortal, the GWAS Catalog, ChEMBL, PubChem, EBI OLS and Europe PMC. Sources that cannot be queried safely from a browser are offered as clearly labeled official links.
+Can Oncotics tell me which treatment or trial is right for a patient?
+No. Oncotics is for education and research. It does not diagnose, recommend treatments or dosing, or decide trial eligibility. Confirm everything with current guidelines, trial sponsors, regulators and qualified clinicians.
+What is the difference between FDA clearance and FDA approval for devices?
+A 510(k) is a clearance based on substantial equivalence, and a De Novo is a classification for novel lower-risk devices. A PMA is an approval for higher-risk devices. Oncotics labels each record with its correct pathway and never calls a 510(k) “approved”.
+Can I search for companion diagnostics?
+Yes. Open a targeted therapy and choose “Find companion diagnostics”. Oncotics shows statements from the drug label and device records that name the drug, each with a confidence label, next to the FDA’s official companion-diagnostics list, which remains the authoritative source.
+What kinds of queries does it understand?
+Gene symbols (EGFR), variants (BRAF V600E), rsIDs (rs113488022), HGVS (NM_004333.6:c.1799T>A), drugs and brands (osimertinib, Tagrisso), diseases (melanoma), trial IDs (NCT02296125), PMIDs, DOIs, UniProt and Ensembl IDs, 510(k), De Novo and PMA numbers, FDA product codes, regulation numbers and UDI-DIs.
+Can I upload medical images?
+Only on the separate Oncotics Imaging Workbench , after a consent step. Images are read in your browser memory, are never uploaded to or stored by Oncotics, and are wiped on refresh or Clear Session. Experimental AI inference there is opt-in, never automatic and not a diagnosis.
+Does Oncotics give vaccine or fertility advice?
+No. The Vaccines & Cancer Immunization and Onco-Fertility modules organize public evidence and official link-outs. They do not give vaccination, schedule, fertility, pregnancy, contraception or genetic-counseling advice.
+What is the interpretation confidence score?
+A heuristic 0–100 query-routing score showing how strongly Oncotics believes your query is, for example, a variant rather than a gene. It is not a probability and not a clinical certainty score.
+Should I enter patient information?
+No. Do not enter names, dates of birth, record numbers, device serial or lot numbers tied to a patient, genomic files or clinical notes. The workspace rejects inputs that look like personal health information.
+Start exploring in seconds
+Free, private and sourced. No sign-up.
+Open the Workspace
+Last updated 3 October 2026. Created by Amit Suresh .
+
+---
+
+# About (https://oncotics.com/about/)
+
+Home
+About
+About Oncotics
+Oncotics builds honest, private tools that make public precision oncology evidence easier to find, connect and verify.
+Our mission What is Oncotics’ mission?
+To give everyone working in or learning about cancer a single, trustworthy place to explore public evidence on genes, variants, drugs, devices, diagnostics and trials — with every fact traceable to its source and no search ever stored.
+Principles How Oncotics is built
+Honest. Live data is labeled live; links are labeled links; possible matches are never shown as exact.
+Private. No backend, cookies, storage or analytics. Your browser talks to the sources directly.
+Transparent. Every record shows its source, retrieval time and official link.
+Responsible. Clear boundaries: no diagnosis, treatment, eligibility, regulatory or procurement advice.
+Accessible. Keyboard-friendly, screen-reader aware, mobile-ready, light and dark modes.
+Creator and Architect
+Amit Suresh
+Creator and Architect, Oncotics
+Amit Suresh created and architected Oncotics and the Oncotics Precision Oncology Workspace. He brings together training in genetic engineering, healthcare management, corporate governance and financial analysis.
+Qualifications
+IICA-certified Independent Director Certified by the Indian Institute of Corporate Affairs (IICA)
+Genetic Engineer Trained in genetic engineering
+MBA in Healthcare Management Management training focused on healthcare
+CFI FMVA Financial Modeling & Valuation Analyst, Corporate Finance Institute (CFI)
+Connect with Amit on LinkedIn (opens in a new tab)
+The product What has Oncotics built?
+The Oncotics Precision Oncology Workspace : a free browser workspace connecting 19 live public sources across clinical evidence, trials, drugs, devices and diagnostics, biology and literature, plus official links to worldwide registries and regulators.
+See it for yourself
+No sign-up. Nothing stored.
+Open the Workspace
+
+---
+
+# Contact (https://oncotics.com/contact/)
+
+Home
+Contact
+Contact Oncotics
+The best way to reach Oncotics is a LinkedIn message to Amit Suresh, Creator and Architect.
+Message Amit on LinkedIn (opens in a new tab)
+Get in touch about What can I contact Oncotics about?
+Feedback on the Precision Oncology Workspace
+Suggestions for new public data sources
+Data discrepancies or broken official links
+Accessibility issues
+Research, education or institutional collaboration
+Connect on LinkedIn (opens in a new tab)
+Please note Before you write
+Do not send patient information. Oncotics cannot give medical advice and does not accept names, dates of birth, record numbers, test reports, images or device serial numbers tied to a person.
+For a medical question, speak with a qualified clinician.
+Contact FAQ
+How do I contact Oncotics?
+Send a message to Amit Suresh, Creator and Architect of Oncotics, on LinkedIn: linkedin.com/in/amit-suresh .
+Can I send patient details for advice?
+No. Oncotics does not provide medical advice and cannot receive personal health information. Please do not send names, dates of birth, record numbers, reports or images about a patient.
+Can I suggest a data source or report a problem?
+Yes. Suggestions for new public sources, broken links, data discrepancies and accessibility issues are welcome via LinkedIn.
+
+---
+
+# Privacy & disclaimer (https://oncotics.com/privacy/)
+
+Home
+Privacy & disclaimer
+Privacy & disclaimer
+Oncotics does not collect, store or analyze your searches.
+Effective 3 October 2026
+Privacy statement
+Oncotics Privacy: your searches are sent directly from your browser to selected public data providers and are not stored by Oncotics.
+No account is required.
+This website and the Workspace set no cookies and use no browser storage (localStorage, sessionStorage or IndexedDB), no service workers, analytics, tracking pixels, heatmaps or session replay.
+Oncotics runs no backend, proxy, database or logging service for the Workspace. Session data lives only in your browser’s memory and is cleared on refresh or Clear Session.
+Requests are sent directly to public providers such as CIViC, ClinicalTrials.gov, openFDA, EMBL-EBI services, RxNorm and others. Each provider may log requests according to its own policy.
+Link-out sources open directly in your browser; some may be in languages other than English.
+Exports (JSON, CSV, print) are generated on your device and are never uploaded. File names never contain your search terms.
+An optional openFDA API key, if you enter one, is kept only in memory for the session. Keys used in a browser are not secrets.
+Your web host may keep standard server access logs for this website’s pages (for example IP address and page requested) for security and operations; Oncotics does not use them to profile visitors. Workspace searches are not sent to this server.
+Imaging Workbench and Geographic Activity Globe
+Imaging Privacy: uploaded images and inference results are kept only in your browser memory. Oncotics does not store, upload, log, or train on your images.
+The Imaging Workbench is a separate page. DICOM and image files are read in browser memory after you consent; DICOMweb endpoints and tokens you enter stay in memory; STOW-RS upload is off by default.
+DICOM files and images may contain protected health information, including burned-in text. De-identify data where possible. Patient name, ID, dates, institution and accession are hidden by default and never exported.
+Experimental AI detection/inference runs only after you load a model, review its model card and press Run. If you choose a remote endpoint, the image goes directly from your browser to that provider, which may log or store it.
+Globe Privacy: locations shown are derived only from public records in memory. Oncotics does not use your device location and does not store globe state. Optional external map imagery is off by default and, if enabled, sends tile requests to a third-party provider.
+Do not enter personal health information
+Do not enter patient identifiers, names, dates of birth, medical record numbers, raw genomic files (VCF, FASTQ, BAM), family medical records, device serial or implant lot numbers tied to a patient, or free-text clinical notes. The Workspace rejects inputs that look like this.
+Medical, regulatory and procurement disclaimer
+This tool is provided for educational and research purposes only. Do not use it for direct patient treatment decisions without qualified clinical review.
+Trial information, FDA label and device data, genomic annotations, variant predictions, literature, pathway, interaction, target validation and cancer genomics data may change and may be incomplete.
+Computational predictions are not clinical diagnoses. Trial listings do not determine eligibility. Adverse event and MAUDE reports are voluntary and do not prove causality.
+Device clearance (510(k)/De Novo) is not approval (PMA/HDE/CDH). openFDA device data may lag the official FDA record; the official FDA database and your institution’s process are authoritative. Recalls require institutional action; Oncotics surfaces records only.
+Companion-diagnostic links are derived from label and device text and may be incomplete; the FDA companion-diagnostics list and current drug label are authoritative. LDTs are regulated differently from FDA-cleared or approved IVDs.
+Target validation signals are research evidence, not treatment recommendations.
+Legal
+© 2026 Oncotics™. All rights reserved.
+Oncotics™ is a trademark of Oncotics.
+Oncotics™ is a trademark of Oncotics. This tool is provided for educational, research, and clinical-information-discovery purposes only. It does not provide medical, oncological, reproductive, vaccination, radiological diagnostic, regulatory, genetic counseling, or procurement advice.
+Oncotics™ is not responsible for clinical decisions made using this interface. The Oncotics™ Imaging Workbench is not a radiology diagnostic system, PACS or FDA-cleared software.
+ClinicalTrials.gov data is provided by the U.S. National Library of Medicine. openFDA data is provided by the U.S. Food and Drug Administration. CIViC data is provided by the CIViC project. Ensembl, Europe PMC and other EMBL-EBI data are provided by EMBL-EBI. UniProt data is provided by the UniProt consortium. RxNorm data is provided by the National Library of Medicine. MyGene.info and MyVariant.info data are provided by their respective services.
+Oncotics™ is an independent interface and is not affiliated with or endorsed by these providers unless expressly stated.
+Questions? Contact Oncotics .

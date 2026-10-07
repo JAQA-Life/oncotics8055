@@ -1,0 +1,13 @@
+**/__pycache__
+**/.pytest_cache
+**/node_modules
+**/.git
+.env
+**/.env
+deploy/auth
+data
+tests
+docs
+.ci-runtime.json
+.ci-compose.yaml
+ci-results

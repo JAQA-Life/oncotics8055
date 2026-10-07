@@ -1,0 +1,104 @@
+name: Oncotics validation
+
+on:
+  push:
+    branches: [main, 'codex/**']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: oncotics-tests-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  source:
+    name: Integration, JavaScript and asset integrity
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: '24'
+      - run: python -m pip install -r requirements-test.txt
+      - run: python -m pytest tests -q --junitxml=ci-results/integration.xml
+      - run: python tools/ci_check.py
+      - run: git diff --check
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: integration-results
+          path: ci-results/
+          retention-days: 7
+
+  containers:
+    name: Container build and startup (${{ matrix.target }})
+    needs: source
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    strategy:
+      fail-fast: false
+      matrix:
+        target: [scenario-api, oncotics-web, mirofish-cloud, mirofish-offline]
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.12'
+      - name: Generate isolated CI configuration and exact source offer
+        run: |
+          python tools/ci_runtime.py prepare
+          python tools/package_release.py
+          python tools/preflight.py
+          docker compose --profile cloud config --quiet
+      - name: Build the actual deployment image
+        env:
+          TARGET: ${{ matrix.target }}
+        run: |
+          docker compose --profile cloud build "$TARGET"
+          image=$(docker compose --profile cloud images --quiet "$TARGET")
+          if [ -z "$image" ]; then image="oncotics-$TARGET"; fi
+          docker image inspect "$image" > /dev/null
+          docker tag "$image" "oncotics-ci:$TARGET"
+      - name: Exercise container startup without external model calls
+        env:
+          TARGET: ${{ matrix.target }}
+        run: python tools/ci_runtime.py smoke "$TARGET"
+      - name: Runner resource evidence
+        if: always()
+        run: |
+          df -h
+          docker system df
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: runtime-${{ matrix.target }}
+          path: ci-results/
+          retention-days: 7
+
+  result:
+    name: Validation summary
+    needs: [source, containers]
+    if: always()
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Record the scope and reject incomplete checks
+        env:
+          SOURCE_RESULT: ${{ needs.source.result }}
+          CONTAINER_RESULT: ${{ needs.containers.result }}
+        run: |
+          echo "Source checks: $SOURCE_RESULT" >> "$GITHUB_STEP_SUMMARY"
+          echo "Container checks: $CONTAINER_RESULT" >> "$GITHUB_STEP_SUMMARY"
+          echo "No live LLM, Zep, OASIS simulation or imaging inference is certified by this workflow." >> "$GITHUB_STEP_SUMMARY"
+          test "$SOURCE_RESULT" = success
+          test "$CONTAINER_RESULT" = success

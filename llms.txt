@@ -1,0 +1,29 @@
+# Oncotics
+
+> Oncotics (oncotics.com) builds privacy-first precision oncology tools. Its flagship, the Oncotics Precision Oncology Workspace, is a free browser-based research workspace that shows live public evidence for any cancer gene, variant, drug, medical device, diagnostic, disease or clinical trial — clinical evidence, trials, FDA drug and device records, companion diagnostics, biology and literature — without storing searches. Educational and research use only; not medical, regulatory or procurement advice.
+
+Key facts:
+- Name: Oncotics. Website: https://oncotics.com/
+- Creator and Architect: Amit Suresh — IICA-certified Independent Director (Indian Institute of Corporate Affairs), Genetic Engineer, MBA in Healthcare Management, CFI Financial Modeling & Valuation Analyst (FMVA). LinkedIn: https://www.linkedin.com/in/amit-suresh/
+- Contact: LinkedIn message to Amit Suresh (no patient information).
+- Price: free; no account or sign-up.
+- Privacy: no backend, no cookies, no browser storage, no analytics; the browser queries public providers directly; nothing is stored; refresh or "Clear Session" wipes all data.
+- Live sources (19): CIViC, ClinicalTrials.gov, openFDA drug endpoints, openFDA device endpoints, Ensembl, MyGene.info, MyVariant.info, UniProt, Europe PMC, RxNorm, STRING, Reactome, AlphaFold DB, Open Targets Platform, cBioPortal, GWAS Catalog, ChEMBL, PubChem, EBI OLS.
+- Link-out sources: NCI Thesaurus, FDA 510(k)/De Novo/PMA/recall/classification databases, AccessGUDID, FDA companion-diagnostics list, MAUDE, MedWatch, Drugs@FDA, DailyMed, NCBI Gene, ClinVar, dbSNP, PubMed, OncoKB, COSMIC, DepMap, GTEx, Human Protein Atlas, WHO ICTRP, ISRCTN, ANZCTR, EU CTIS, EU CTR, Health Canada, TGA, EMA, PMDA, NMPA, MHRA, CDSCO, CTRI, jRCT.
+- Verify-on-request sources (documented public APIs, called only on explicit user action until verified from oncotics.com): OncoTree, NCI GDC (open access), DGIdb, Complex Portal, QuickGO, PDBe, EBI Proteins, OpenAlex, Crossref, Semantic Scholar.
+- Modules: Overview (search interpretation with heuristic confidence scores, Geographic Activity Globe, Molecular Context Map), Clinical Evidence, Trials, Drug Intelligence, Vaccines & Cancer Immunization, Devices & Dx, Onco-Fertility, Biology, Literature, Expert Knowledge & Patient Education, Relationship Explorer, Global Coverage, Comparison, Session Board, Advanced Query, Coverage Console, Session & Privacy.
+- Imaging Workbench (https://oncotics.com/imaging/): separate page powered by a self-hosted OHIF Viewer; memory-only DICOM/image viewing, measurement, annotation and opt-in experimental AI inference with a user-loaded model; not a radiology diagnostic system; nothing uploaded or stored.
+- No vaccine, fertility, pregnancy, contraception, genetic-counseling or radiological diagnostic advice.
+- Accepted queries: gene symbols (EGFR), variants (BRAF V600E), rsIDs, HGVS, drugs and brand names, diseases, NCT IDs and other registry IDs, PMIDs, DOIs, UniProt and Ensembl IDs, 510(k)/De Novo/PMA numbers, FDA product codes, regulation numbers, UDI-DIs.
+- Regulatory vocabulary: 510(k) = clearance; De Novo = classification; PMA = approval. openFDA device records may lag official FDA databases.
+
+## Pages
+- [Home](https://oncotics.com/): what Oncotics does, who benefits, how, when, why and where; FAQ.
+- [Precision Oncology Workspace](https://oncotics.com/precision-oncology-workspace/): the free research tool.
+- [Imaging Workbench](https://oncotics.com/imaging/): separate memory-only imaging page (OHIF Viewer, Oncotics Inspector, opt-in experimental AI).
+- [About](https://oncotics.com/about/): mission, principles, and Amit Suresh, Creator and Architect.
+- [Contact](https://oncotics.com/contact/): contact via LinkedIn.
+- [Privacy & disclaimer](https://oncotics.com/privacy/): privacy statement and medical/regulatory disclaimer.
+
+## Optional
+- [Full text for AI assistants](https://oncotics.com/llms-full.txt)

@@ -1,0 +1,117 @@
+{
+  "schema": "oncotics-model-pack/1",
+  "id": "brain-mri-brats-segresnet",
+  "task": "brain-mri-seg-3d",
+  "notForUse": false,
+  "card": {
+    "name": "MONAI BraTS brain tumour segmentation (SegResNet, 3D)",
+    "version": "brats_mri_segmentation 0.5.2",
+    "source": "MONAI Model Zoo (Project MONAI)",
+    "link": "https://github.com/Project-MONAI/model-zoo/tree/dev/models/brats_mri_segmentation",
+    "license": "Apache-2.0 (see LICENSE in this pack)",
+    "paper": "https://arxiv.org/abs/1810.11654",
+    "trainingData": "https://www.med.upenn.edu/sbia/brats2018/data.html",
+    "intendedUse": "Research and education: segments the three nested BraTS glioma sub-regions (tumour core, whole tumour, enhancing tumour) on four co-registered, skull-stripped 3D brain MRI volumes (T1 post-contrast, T1, T2, FLAIR) and reports their volumes. It does not diagnose cancer.",
+    "validationStatus": "Research model from the MONAI Model Zoo, evaluated by its authors on a held-out BraTS 2018 split; not clinically validated or cleared.",
+    "modality": [
+      "Brain MRI: T1c, T1, T2, FLAIR (all four required)"
+    ],
+    "imageTypes": [
+      "NIfTI (.nii / .nii.gz), e.g. BraTS files",
+      "DICOM series on the same voxel grid"
+    ],
+    "limitations": [
+      "Needs all four sequences co-registered to the same voxel grid, skull-stripped and at about 1 mm isotropic, as in BraTS. Raw scanner series give unreliable output",
+      "Trained on adult gliomas (BraTS 2018); metastases, paediatric and post-surgical brains are out of scope",
+      "The browser runs 128 mm windows; the bundle uses 240 \u00d7 240 \u00d7 160 windows, so borders between windows can differ slightly"
+    ],
+    "failureModes": [
+      "Mis-registration between sequences",
+      "Residual skull or scalp",
+      "Motion and intensity artefacts",
+      "Small or non-enhancing lesions"
+    ],
+    "calibrated": false,
+    "confidenceMeaning": "Mean sigmoid output inside each region. It is not a calibrated probability of cancer.",
+    "regulatoryStatus": "None (research model)",
+    "lastVerified": "2026-10-03",
+    "bundleDescription": "A pre-trained model for volumetric (3D) segmentation of brain tumor subregions from multimodal MRIs based on BraTS 2018 data"
+  },
+  "input": {
+    "name": "image",
+    "channels": [
+      "T1c",
+      "T1",
+      "T2",
+      "FLAIR"
+    ],
+    "channelOrder": "as in the bundle metadata (network_data_format.inputs.image.channel_def)",
+    "normalize": {
+      "nonzero": true,
+      "channelWise": true
+    },
+    "voxelOrder": "as stored in the file (no reorientation, as the bundle LoadImaged)",
+    "expectedSpacingMm": [
+      1,
+      1,
+      1
+    ],
+    "divisibleBy": 8
+  },
+  "inferer": {
+    "roi": [
+      128,
+      128,
+      128
+    ],
+    "overlap": 0.5,
+    "mode": "constant",
+    "bundleRoi": [
+      240,
+      240,
+      160
+    ]
+  },
+  "output": {
+    "name": "logits",
+    "activation": "sigmoid",
+    "threshold": 0.5
+  },
+  "labels": [
+    "Tumor core",
+    "Whole tumor",
+    "Enhancing tumor"
+  ],
+  "labelNotes": {
+    "Tumor core": "TC: enhancing tumour + necrotic and non-enhancing core",
+    "Whole tumor": "WT: tumour core + peritumoural oedema",
+    "Enhancing tumor": "ET: enhancing tumour"
+  },
+  "verification": {
+    "maxAbsDiffLogits": 0.0008659958839416504,
+    "pipelineMaxAbsDiffLogitsSameNetwork": 3.814697265625e-06,
+    "pipelineMaxAbsDiffProb": 0.0018873214721679688,
+    "pipelineMaskVoxelsDiffering": 11,
+    "pipelineMaskVoxels": 6300000,
+    "reference": "bundle network_def + models/model.pt in PyTorch; MONAI NormalizeIntensity + sliding_window_inference",
+    "diceBrowserVsBundleWindowSynthetic": [
+      0.9723379795947693,
+      0.9828225649033769,
+      0.9593081550802139
+    ]
+  },
+  "sourceBundle": {
+    "name": "brats_mri_segmentation",
+    "version": "0.5.2",
+    "downloadedFrom": "monaihosting"
+  },
+  "model": "model.onnx",
+  "sizeBytes": 18874528,
+  "sha256": "a48119f1ef2cca003e5dd550e57dbfeaf56ae595e7470ab26bc774d991a63f3b",
+  "builtAt": "2026-10-03T12:43:04Z",
+  "builtWith": {
+    "torch": "2.4.1+cpu",
+    "onnx": "1.23.1",
+    "onnxruntime": "1.30.0"
+  }
+}

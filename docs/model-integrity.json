@@ -1,0 +1,26 @@
+[
+  {
+    "id": "brain-mri-brats-segresnet",
+    "sha256": "a48119f1ef2cca003e5dd550e57dbfeaf56ae595e7470ab26bc774d991a63f3b",
+    "bytes": 18874528,
+    "verified": true
+  },
+  {
+    "id": "cxr-xrv-densenet121",
+    "sha256": "9212ebbfb381b8a245324b83f64d7884a1d9c02bfb588520ba706ed7bcb1b156",
+    "bytes": 28231105,
+    "verified": true
+  },
+  {
+    "id": "lung-ct-luna16-retinanet",
+    "sha256": "aa7d8c246ea0f517fa26dff1f61a61c6cedec0ad00ed56fd87a72b7625778b2f",
+    "bytes": 83668275,
+    "verified": true
+  },
+  {
+    "id": "path-camelyon16-resnet18",
+    "sha256": "0b9e194bc0efc8de568adcbc63f07bb9511e98b74c93297c503281b3b11fad99",
+    "bytes": 44702485,
+    "verified": true
+  }
+]

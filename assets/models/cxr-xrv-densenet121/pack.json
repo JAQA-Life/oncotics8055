@@ -1,0 +1,117 @@
+{
+  "schema": "oncotics-model-pack/1",
+  "id": "cxr-xrv-densenet121",
+  "task": "cxr-classification",
+  "notForUse": false,
+  "card": {
+    "name": "TorchXRayVision DenseNet-121 (all datasets)",
+    "version": "densenet121-res224-all \u00b7 torchxrayvision 1.5.5",
+    "source": "TorchXRayVision (Cohen et al.)",
+    "link": "https://github.com/mlmed/torchxrayvision",
+    "license": "Apache-2.0",
+    "paper": "https://arxiv.org/abs/2002.02497",
+    "trainingData": "This model was trained on the datasets: nih-pc-chex-mimic_ch-google-openi-rsna and is described here: https://arxiv.org/abs/2002.02497",
+    "intendedUse": "Research and education: scores frontal chest X-rays for 18 radiographic findings, including Mass, Nodule and Lung Lesion, and shows class-activation maps of the image regions that drove each score. It does not diagnose cancer.",
+    "validationStatus": "Research model evaluated by its authors on public datasets; not clinically validated or cleared.",
+    "modality": [
+      "Chest X-ray (frontal PA/AP)"
+    ],
+    "imageTypes": [
+      "DICOM (CR/DX)",
+      "PNG",
+      "JPEG"
+    ],
+    "limitations": [
+      "Frontal chest X-rays only; other views or body parts give meaningless scores",
+      "Image is centre-cropped to a square and resized to 224 \u00d7 224",
+      "Dataset labels were mined from reports and are noisy",
+      "Activation maps are coarse (7 \u00d7 7) and are not lesion outlines"
+    ],
+    "failureModes": [
+      "Distribution shift between hospitals, devices and populations",
+      "Support devices, text and markers can influence scores",
+      "Small nodules are often missed at 224 px"
+    ],
+    "calibrated": false,
+    "confidenceMeaning": "Score normalised so that 0.5 is the authors' operating point for each finding (above 0.5 = above that point). It is not a probability of cancer.",
+    "regulatoryStatus": "None (research model)",
+    "lastVerified": "2026-10-03"
+  },
+  "input": {
+    "name": "image",
+    "channels": 1,
+    "width": 224,
+    "height": 224,
+    "centerCrop": true,
+    "scale": 8.031372549019608,
+    "offset": -1024.0,
+    "note": "gray value v in 0..255 -> (2*(v/255)-1)*1024, as xrv.utils.normalize(img, 255)"
+  },
+  "output": {
+    "logits": "logits",
+    "cam": "cam",
+    "activation": "sigmoid",
+    "operatingPointNorm": true
+  },
+  "labels": [
+    "Atelectasis",
+    "Consolidation",
+    "Infiltration",
+    "Pneumothorax",
+    "Edema",
+    "Emphysema",
+    "Fibrosis",
+    "Effusion",
+    "Pneumonia",
+    "Pleural_Thickening",
+    "Cardiomegaly",
+    "Nodule",
+    "Mass",
+    "Hernia",
+    "Lung Lesion",
+    "Fracture",
+    "Lung Opacity",
+    "Enlarged Cardiomediastinum"
+  ],
+  "opThresholds": [
+    0.07422871887683868,
+    0.0382908433675766,
+    0.09814756363630295,
+    0.00981184747070074,
+    0.023601073771715164,
+    0.0022490357514470816,
+    0.01006072387099266,
+    0.10324661433696747,
+    0.056810736656188965,
+    0.026791652664542198,
+    0.0503181554377079,
+    0.023985857143998146,
+    0.019395029172301292,
+    0.04288976639509201,
+    0.05336962267756462,
+    0.03597581386566162,
+    0.20204691588878632,
+    0.05015312135219574
+  ],
+  "focusLabels": [
+    "Mass",
+    "Nodule",
+    "Lung Lesion"
+  ],
+  "verification": {
+    "maxAbsDiffProb": 3.2782554626464844e-07,
+    "maxAbsDiffCam": 6.103515625e-05,
+    "samples": 4,
+    "reference": "torchxrayvision DenseNet.forward (sigmoid + op_norm)"
+  },
+  "sourceWeights": "https://github.com/mlmed/torchxrayvision/releases/download/v1/nih-pc-chex-mimic_ch-google-openi-kaggle-densenet121-d121-tw-lr001-rot45-tr15-sc15-seed0-best.pt",
+  "model": "model.onnx",
+  "sizeBytes": 28231105,
+  "sha256": "9212ebbfb381b8a245324b83f64d7884a1d9c02bfb588520ba706ed7bcb1b156",
+  "builtAt": "2026-10-03T12:42:12Z",
+  "builtWith": {
+    "torch": "2.4.1+cpu",
+    "onnx": "1.23.1",
+    "onnxruntime": "1.30.0"
+  }
+}

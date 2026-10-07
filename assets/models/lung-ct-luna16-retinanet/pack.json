@@ -1,0 +1,257 @@
+{
+  "schema": "oncotics-model-pack/1",
+  "id": "lung-ct-luna16-retinanet",
+  "task": "lung-ct-detection-3d",
+  "notForUse": false,
+  "card": {
+    "name": "MONAI lung nodule detection (RetinaNet, 3D CT)",
+    "version": "lung_nodule_ct_detection 0.6.8",
+    "source": "MONAI Model Zoo (Project MONAI)",
+    "link": "https://github.com/Project-MONAI/model-zoo/tree/dev/models/lung_nodule_ct_detection",
+    "license": "Apache-2.0 (see LICENSE in this pack)",
+    "paper": "https://arxiv.org/abs/1708.02002",
+    "trainingData": "https://luna16.grand-challenge.org/Home/",
+    "intendedUse": "Research and education: detects candidate lung nodules as 3D boxes on chest CT and reports their size and position. It does not say whether a nodule is benign or malignant and does not diagnose cancer.",
+    "validationStatus": "Research model from the MONAI Model Zoo, evaluated by its authors on LUNA16 (fold 0); not clinically validated or cleared.",
+    "modality": [
+      "Chest CT (axial series, Hounsfield units)"
+    ],
+    "imageTypes": [
+      "DICOM CT series",
+      "NIfTI (.nii / .nii.gz)"
+    ],
+    "limitations": [
+      "Detects nodules; it does not grade malignancy",
+      "Trained on LUNA16 (nodules of 3 mm or more agreed by radiologists); other populations, scanners and reconstruction kernels shift performance",
+      "The browser resamples the scan to [0.703125, 0.703125, 1.25] mm and runs [192, 192, 96]-voxel windows; very large regions take many minutes",
+      "Boxes are axis-aligned and approximate"
+    ],
+    "failureModes": [
+      "Vessels seen end-on",
+      "Scarring, atelectasis and pleural plaques",
+      "Ground-glass and juxta-pleural nodules",
+      "Motion and streak artefacts"
+    ],
+    "calibrated": false,
+    "confidenceMeaning": "Detector classification score (sigmoid). It is not a calibrated probability that a nodule is present or malignant.",
+    "regulatoryStatus": "None (research model)",
+    "lastVerified": "2026-10-03",
+    "bundleDescription": "A pre-trained model for volumetric (3D) detection of the lung lesion from CT image on LUNA16 dataset"
+  },
+  "input": {
+    "name": "image",
+    "orientation": "RAS",
+    "pixdimMm": [
+      0.703125,
+      0.703125,
+      1.25
+    ],
+    "resample": "trilinear, voxel 0 aligned (MONAI Spacing)",
+    "intensity": {
+      "aMin": -1024.0,
+      "aMax": 300.0,
+      "bMin": 0.0,
+      "bMax": 1.0,
+      "clip": true
+    },
+    "sizeDivisible": [
+      16,
+      16,
+      8
+    ],
+    "pad": "zeros at the end"
+  },
+  "inferer": {
+    "tile": [
+      192,
+      192,
+      96
+    ],
+    "overlap": 0.25,
+    "merge": "average of overlapping head maps (constant mode)",
+    "bundleRoi": [
+      512,
+      512,
+      192
+    ],
+    "bundleOverlap": 0.25
+  },
+  "output": {
+    "cls": [
+      "cls0",
+      "cls1",
+      "cls2"
+    ],
+    "box": [
+      "box0",
+      "box1",
+      "box2"
+    ],
+    "anchorsPerLocation": 3,
+    "numClasses": 1,
+    "activation": "sigmoid"
+  },
+  "anchors": {
+    "cellAnchors": [
+      [
+        [
+          -3.0,
+          -4.0,
+          -2.0,
+          3.0,
+          4.0,
+          2.0
+        ],
+        [
+          -4.0,
+          -3.0,
+          -2.0,
+          4.0,
+          3.0,
+          2.0
+        ],
+        [
+          -5.0,
+          -5.0,
+          -3.0,
+          5.0,
+          5.0,
+          3.0
+        ]
+      ],
+      [
+        [
+          -6.0,
+          -8.0,
+          -4.0,
+          6.0,
+          8.0,
+          4.0
+        ],
+        [
+          -8.0,
+          -6.0,
+          -5.0,
+          8.0,
+          6.0,
+          5.0
+        ],
+        [
+          -10.0,
+          -10.0,
+          -6.0,
+          10.0,
+          10.0,
+          6.0
+        ]
+      ],
+      [
+        [
+          -12.0,
+          -16.0,
+          -8.0,
+          12.0,
+          16.0,
+          8.0
+        ],
+        [
+          -16.0,
+          -12.0,
+          -10.0,
+          16.0,
+          12.0,
+          10.0
+        ],
+        [
+          -20.0,
+          -20.0,
+          -12.0,
+          20.0,
+          20.0,
+          12.0
+        ]
+      ]
+    ],
+    "featureMapScales": [
+      1.0,
+      2.0,
+      4.0
+    ],
+    "baseAnchorShapes": [
+      [
+        6.0,
+        8.0,
+        4.0
+      ],
+      [
+        8.0,
+        6.0,
+        5.0
+      ],
+      [
+        10.0,
+        10.0,
+        6.0
+      ]
+    ],
+    "order": "location-major (x, y, z), then anchor",
+    "stride": "padded image size // feature map size"
+  },
+  "boxCoder": {
+    "weights": [
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0
+    ],
+    "clip": 4.135166556742356
+  },
+  "selector": {
+    "scoreThresh": 0.02,
+    "topkPerLevel": 1000,
+    "nmsThresh": 0.22,
+    "detectionsPerImage": 300
+  },
+  "labels": [
+    "Lung nodule candidate"
+  ],
+  "verification": {
+    "maxAbsDiffHeads": 0.006694793701171875,
+    "maxRelDiffHeads": 0.0005742782486849189,
+    "singleWindow": {
+      "monaiBoxes": 300,
+      "browserBoxes": 300,
+      "maxAbsDiffBoxVoxel": 0.001251220703125,
+      "maxAbsDiffScore": 1.2188684195280075e-06
+    },
+    "tiled": {
+      "monaiBoxes": 300,
+      "browserBoxes": 300,
+      "maxAbsDiffBoxVoxel": 0.001983642578125,
+      "maxAbsDiffScore": 8.815526962280273e-05
+    },
+    "bundleThreshold": {
+      "monaiBoxes": 0,
+      "browserBoxes": 0,
+      "maxAbsDiffBoxVoxel": 0.0,
+      "maxAbsDiffScore": 0.0
+    },
+    "reference": "bundle network_def + models/model.pt in PyTorch; MONAI RetinaNetDetector (forward and SlidingWindowInferer)"
+  },
+  "sourceBundle": {
+    "name": "lung_nodule_ct_detection",
+    "version": "0.6.8",
+    "downloadedFrom": "monaihosting"
+  },
+  "model": "model.onnx",
+  "sizeBytes": 83668275,
+  "sha256": "aa7d8c246ea0f517fa26dff1f61a61c6cedec0ad00ed56fd87a72b7625778b2f",
+  "builtAt": "2026-10-03T12:54:27Z",
+  "builtWith": {
+    "torch": "2.4.1+cpu",
+    "onnx": "1.23.1",
+    "onnxruntime": "1.30.0"
+  }
+}
