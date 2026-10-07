@@ -33,7 +33,7 @@ Visit each of these paths on your own HTTPS domain:
 - `/assets/browser-ai/model.wasm` — runtime must download successfully.
 - `/scenario-lab/source-code.zip` — source offer must remain available.
 
-On a current WebGPU-compatible browser with hardware acceleration, open Scenario Lab and click **Load AI on this device**. The first load transfers roughly 320 MB of model/runtime assets; the exact total is displayed from the included manifest. Browser caching may avoid later full downloads. GPU memory, browser support and disk quotas vary by device; a weak phone or unsupported browser may be unable to run the model.
+On a current WebGPU-compatible browser with hardware acceleration, open Scenario Lab and click **Load AI on this device**. This edition uses Qwen2.5 3B Instruct (`q4f32_1`). The first load transfers roughly 1.8 GB of model/runtime assets; the exact total is displayed from the included manifest. Browser caching may avoid later full downloads. The runtime estimates roughly 3 GB of GPU memory, with additional browser/device headroom required; a GPU with 4 GB or more available memory is a practical starting point, not a guarantee. GPU memory, browser support and disk quotas vary by device; a weak phone or unsupported browser may be unable to run the model.
 
 Confirm public, non-patient research use. Retrieve a narrow public query, inspect source records and coverage, enter explicit assumptions, then confirm review. Start with **one stakeholder and one round**. Inspect the synthetic agent and labeled report, export JSON, reload and reopen the saved run. Runs need an open tab. Each browser profile has its own records; there is no shared account, server history or background job queue. The Scenario Lab deletion button deletes only its own records. Clearing all browser site data can also delete locally stored imaging data; export that separately before using the browser's full site-data deletion option.
 
@@ -51,6 +51,14 @@ Check that the browser Network panel shows model/runtime downloads from your own
 | IndexedDB/quota error | Export saved records, free site storage, and retry. Private browsing can restrict persistence. Clearing site data deletes local runs and model caches. |
 | Invalid model JSON / citation | The run stops with its last completed checkpoint. Review evidence and assumptions, then resume or create a new run. No substitute result is fabricated. |
 | Old code/model after an update | Purge hosting caches, close existing site tabs, clear model cache/site data after exporting records, and load the new model. Do not resume an old run against a different model revision. |
+
+## Upgrading from the 0.5B edition
+
+Export existing scenarios and any locally stored imaging data before changing browser site storage. Back up the old deployment, upload the complete new ZIP, preserve .htaccess, and purge Hostinger caches. The manifest must identify Qwen2.5-3B-Instruct-q4f32_1-MLC. Old scenarios retain their original model identity and cannot resume against 3B; their reports can still be inspected/exported. Create a new scenario to use 3B. The browser may retain old model caches; clear browser site data only after exporting records and imaging data. After verifying the upgrade, the unused old 0.5B model revision folder can be removed from the hosting backup/staging deployment without touching the imaging packs.
+
+## Qwen 3B model license
+
+The model is distributed under the Qwen Research License Agreement, which permits non-commercial research/evaluation by default and requires a separate license from Alibaba Cloud for commercial use. Keep assets/browser-ai/licenses/Qwen-LICENSE.txt and Qwen-NOTICE.txt. A research-only label does not itself authorize commercial use. See https://huggingface.co/Qwen/Qwen2.5-3B-Instruct/blob/main/LICENSE.
 
 ## Before opening a public research pilot
 

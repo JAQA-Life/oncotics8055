@@ -1,12 +1,12 @@
 # Oncotics Browser Scenario Lab
 
-Complete static Oncotics site with a WebLLM/WebGPU Scenario Lab at `/scenario-lab/`. The model, compiled runtime and tokenizer files are self-hosted. Prompts never go to an external AI API. Public evidence APIs remain enabled.
+Complete static Oncotics site with a WebLLM/WebGPU Scenario Lab at `/scenario-lab/`. Qwen2.5 3B Instruct (`q4f32_1`), compiled runtime and tokenizer files are self-hosted. Prompts never go to an external AI API. Public evidence APIs remain enabled.
 
 This edition implements the approved browser-only rewrite. It does **not** execute the Python MiroFish engines, OASIS, Neo4j or Ollama. The original engine integration remains on the `main` branch; this edition is on `codex/browser-ai-edition`.
 
 Upload the prebuilt `Oncotics-Hostinger-Upload.zip` contents to your domain's web root. Read [the Hostinger guide](docs/HOSTINGER-UPLOAD.md). No VPS, API key, AI account, server database or persistent Node.js process is needed.
 
-Existing Oncotics branding, oncology workspace, globe, OHIF viewer, ONNX runtime and four original imaging model packs are retained. Model hashes are checked during the build. This is research software; no medical or clinical validation is implied.
+Existing Oncotics branding, oncology workspace, globe, OHIF viewer, ONNX runtime and four original imaging model packs are retained. Model hashes are checked during the build. This is research software; no medical or clinical validation is implied. Qwen2.5 3B uses a non-commercial research license by default; commercial use requires a separate license from Alibaba Cloud. Plan for roughly 1.8 GB of initial model downloads and about 3 GB GPU memory plus headroom. Keep the included model license and attribution notice.
 
 ## Build and verify
 

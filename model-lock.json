@@ -1,6 +1,9 @@
 {
-  "repo": "mlc-ai/Qwen2.5-0.5B-Instruct-q4f32_1-MLC",
-  "revision": "8e6ec5f417c7d0e1414703ef619b8a24686e3ab0",
-  "model_id": "Qwen2.5-0.5B-Instruct-q4f32_1-MLC",
-  "webllm_version": "0.2.79"
+  "repo": "mlc-ai/Qwen2.5-3B-Instruct-q4f32_1-MLC",
+  "revision": "dfa91e859b714acfa489a1464297080656c3460d",
+  "model_id": "Qwen2.5-3B-Instruct-q4f32_1-MLC",
+  "webllm_version": "0.2.79",
+  "base_model": "Qwen/Qwen2.5-3B-Instruct",
+  "license": "Qwen Research License Agreement",
+  "non_commercial": true
 }

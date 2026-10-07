@@ -3,7 +3,7 @@ let engine,worker,manifest,workerFault;
 const asError=value=>value instanceof Error?value:Error(typeof value==='string'?value:value?.message||JSON.stringify(value));
 async function bounded(operation,signal,onStop=()=>{}){
   signal?.throwIfAborted();let timer,abort;
-  const stop=new Promise((_,reject)=>{abort=()=>{onStop();reject(signal.reason||new DOMException('Cancelled','AbortError'));};signal?.addEventListener('abort',abort,{once:true});timer=setTimeout(()=>{onStop();reject(Error('AI operation timed out on this device. The last completed step remains saved.'));},1800000);});
+  const stop=new Promise((_,reject)=>{abort=()=>{onStop();reject(signal.reason||new DOMException('Cancelled','AbortError'));};signal?.addEventListener('abort',abort,{once:true});timer=setTimeout(()=>{onStop();reject(Error('AI operation timed out on this device. The last completed step remains saved.'));},5400000);});
   try{return await Promise.race([operation,stop]);}finally{clearTimeout(timer);signal?.removeEventListener('abort',abort);}
 }
 export async function inspectDevice(){
@@ -11,7 +11,7 @@ export async function inspectDevice(){
   if(!navigator.gpu)throw Error('WebGPU is unavailable. Use an up-to-date compatible browser and GPU-enabled device.');
   const adapter=await navigator.gpu.requestAdapter();
   if(!adapter)throw Error('No usable WebGPU adapter was found. Check browser hardware acceleration.');
-  if(adapter.limits.maxStorageBufferBindingSize<128*1024*1024)throw Error('This GPU cannot bind the required model buffers.');
+  if(adapter.limits.maxStorageBufferBindingSize<256*1024*1024)throw Error('This GPU cannot bind the required model buffers.');
   return {available:true,maxStorageBufferBindingSize:adapter.limits.maxStorageBufferBindingSize};
 }
 export async function modelManifest(){
@@ -27,7 +27,7 @@ export async function loadModel(onProgress=()=>{},signal){
   worker=new Worker('/scenario-lab/model-worker.mjs',{type:'module'});
   workerFault=new Promise((_,reject)=>{worker.onerror=event=>reject(Error('AI worker failed: '+(event.message||'runtime error')));});
   try{
-    const loaded=CreateWebWorkerMLCEngine(worker,manifest.id,{appConfig:{model_list:[{model_id:manifest.id,model:new URL(manifest.model_base,location.origin).href,model_lib:new URL(manifest.model_lib,location.origin).href,overrides:{context_window_size:4096,prefill_chunk_size:128},vram_required_MB:manifest.vram_required_MB}],useIndexedDBCache:true},initProgressCallback:onProgress},{context_window_size:4096,prefill_chunk_size:128});
+    const loaded=CreateWebWorkerMLCEngine(worker,manifest.id,{appConfig:{model_list:[{model_id:manifest.id,model:new URL(manifest.model_base,location.origin).href,model_lib:new URL(manifest.model_lib,location.origin).href,overrides:{context_window_size:4096,prefill_chunk_size:128},vram_required_MB:manifest.vram_required_MB,buffer_size_required_bytes:manifest.buffer_size_required_bytes,required_features:manifest.required_features||[]}],useIndexedDBCache:true},initProgressCallback:onProgress},{context_window_size:4096,prefill_chunk_size:128});
     engine=await bounded(Promise.race([loaded,workerFault]),signal,()=>worker?.terminate());
     return identity();
   }catch(e){worker?.terminate();worker=undefined;engine=undefined;throw asError(e);}
