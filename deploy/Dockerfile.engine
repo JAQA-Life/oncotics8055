@@ -6,7 +6,8 @@ ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 FLASK_DEBUG=false
 RUN apt-get update && apt-get install -y --no-install-recommends build-essential libcairo2 libmagic1 libgomp1 && rm -rf /var/lib/apt/lists/*
 WORKDIR /engine
 COPY ${ENGINE_DIR}/ ./
-RUN pip install --no-cache-dir -r backend/requirements.txt gunicorn==23.0.0 && useradd -u 10001 -m oncotics && mkdir -p backend/uploads && chown -R oncotics /engine
+COPY deploy/engine-constraints.txt /engine/oncotics-engine-constraints.txt
+RUN pip install --no-cache-dir -c oncotics-engine-constraints.txt -r backend/requirements.txt gunicorn==23.0.0 && useradd -u 10001 -m oncotics && mkdir -p backend/uploads && chown -R oncotics /engine
 COPY deploy/engine_wsgi.py /engine/backend/oncotics_wsgi.py
 USER oncotics
 WORKDIR /engine/backend

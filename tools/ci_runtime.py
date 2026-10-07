@@ -143,6 +143,7 @@ def smoke(target):
             assert json.loads(body)['status']=='ok'
             if target=='scenario-api':assert response(url+'/api/scenarios/config')[0]==401
             else:
+                command('docker','exec',name,'python','-m','compileall','-q','app','scripts')
                 command('docker','exec',name,'python','-c',
                         'import oasis; from camel.models import ModelFactory; from oasis import ActionType, LLMAction; print("OASIS runtime imports passed")')
             if target=='mirofish-offline':

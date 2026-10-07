@@ -1,0 +1,3 @@
+# Both preserved upstream uv.lock files resolve this version. CAMEL 0.2.78
+# imports FastMCP from mcp.server, which is incompatible with MCP SDK 2.x.
+mcp==1.24.0
