@@ -24,8 +24,8 @@ services:
     volumes:
       - ./deploy/auth/htpasswd:/etc/nginx/auth/htpasswd:ro
       - ./deploy/scenario-api.conf.template:/etc/nginx/scenario-api.conf.template:ro
-    # The entrypoint renders the API include directly into /etc/nginx.
-    command: ["/bin/sh", "-c", "envsubst '$$SCENARIO_PROXY_SECRET' < /etc/nginx/scenario-api.conf.template > /etc/nginx/scenario-api.conf && nginx -g 'daemon off;'"]
+    # Keep the official Nginx entrypoint so its server template is rendered.
+    # The bundled startup hook renders the authenticated API include.
     networks: [gateway]
     depends_on: [scenario-api]
     restart: unless-stopped

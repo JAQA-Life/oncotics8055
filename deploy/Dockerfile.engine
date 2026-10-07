@@ -1,5 +1,6 @@
 # Build each engine from its own preserved repository; no source-tree merge.
-FROM python:3.12.10-slim
+# OASIS 0.2.5 declares Python >=3.10,<3.12; MiroFish requires >=3.11.
+FROM python:3.11.14-slim-bookworm
 ARG ENGINE_DIR
 ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 FLASK_DEBUG=false
 RUN apt-get update && apt-get install -y --no-install-recommends build-essential && rm -rf /var/lib/apt/lists/*

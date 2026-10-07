@@ -8,3 +8,6 @@ COPY imaging/ /usr/share/nginx/html/imaging/
 COPY precision-oncology-workspace/ /usr/share/nginx/html/precision-oncology-workspace/
 COPY scenario-lab/ /usr/share/nginx/html/scenario-lab/
 COPY deploy/nginx.conf.template /etc/nginx/templates/default.conf.template
+COPY deploy/scenario-api.conf.template /etc/nginx/scenario-api.conf.template
+COPY deploy/25-oncotics-scenario-api.sh /docker-entrypoint.d/25-oncotics-scenario-api.sh
+RUN chmod 755 /docker-entrypoint.d/25-oncotics-scenario-api.sh

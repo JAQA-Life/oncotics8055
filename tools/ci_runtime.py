@@ -14,7 +14,7 @@ import urllib.request
 from pathlib import Path
 
 ROOT=Path(__file__).resolve().parents[1]
-STATE=ROOT/'ci-results/runtime-config.json'
+STATE=ROOT/'.ci-runtime.json'
 
 def command(*args, capture=False):
     return subprocess.run(args,cwd=ROOT,check=True,capture_output=capture,text=True)
@@ -25,10 +25,8 @@ def prepare():
            'cloud':secrets.token_hex(32),'neo4j':secrets.token_hex(32),'password':secrets.token_hex(24)}
     (ROOT/'ci-results').mkdir(exist_ok=True)
     # Do not put the ephemeral secrets in uploaded ci-results artifacts.
-    STATE.parent.mkdir(exist_ok=True)
-    STATE_PRIVATE=ROOT/'.ci-runtime.json'
-    STATE_PRIVATE.write_text(json.dumps(state))
-    STATE_PRIVATE.chmod(0o600)
+    STATE.write_text(json.dumps(state))
+    STATE.chmod(0o600)
     values={'SCENARIO_PROXY_SECRET':state['proxy'],'SCENARIO_CSRF_SECRET':state['csrf'],
             'LOCAL_ENGINE_SECRET':state['local'],'CLOUD_ENGINE_SECRET':state['cloud'],
             'NEO4J_PASSWORD':state['neo4j'],'SCENARIO_PUBLIC_ORIGIN':'https://ci.invalid',
@@ -67,7 +65,7 @@ def port(name, internal):
     return bindings[f'{internal}/tcp'][0]['HostPort']
 
 def smoke(target):
-    state=json.loads((ROOT/'.ci-runtime.json').read_text())
+    state=json.loads(STATE.read_text())
     name='oncotics-ci-service'
     created=[]
     try:
@@ -134,6 +132,14 @@ def smoke(target):
             if target=='mirofish-offline':
                 probe=command('docker','exec',name,'python','-c',
                               "from oncotics_wsgi import app; assert app.extensions.get('neo4j_storage') is not None",capture=True)
+            if target=='mirofish-cloud':
+                # OASIS includes pytest. Isolate the preserved backend suite from
+                # network access; every provider dependency must be mocked.
+                command('docker','network','disconnect','bridge',name)
+                command('docker','exec',name,'python','-m','pytest','tests','-q',
+                        '--junitxml=/tmp/upstream-tests.xml')
+                command('docker','cp',name+':/tmp/upstream-tests.xml',
+                        str(ROOT/'ci-results/upstream-backend.xml'))
             label='Actual image startup and health'+(' with Neo4j connection' if target=='mirofish-offline' else '')
         (ROOT/'ci-results'/f'{target}.json').write_text(json.dumps({'target':target,'check':label,'passed':True,
               'live_model_calls':False,'live_simulation_acceptance':False},indent=2))
