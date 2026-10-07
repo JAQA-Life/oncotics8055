@@ -1,5 +1,10 @@
 # Verification report — 7 October 2026
 
+GitHub follow-up: **161 tests passed and all four deployment images built and
+passed startup checks**, including OASIS imports and Neo4j connectivity.
+See [GITHUB-RESULTS.md](GITHUB-RESULTS.md) for the verified run, fixes and scope.
+The local environment limitations below describe the initial validation.
+
 ## Completed
 
 | Check | Result |
@@ -29,10 +34,10 @@ Public-source smoke probes used PSMA/FOLH1 and osimertinib only. Final observed 
 
 ## Environment limitations and unverified checks
 
-- Docker was not installed on the build host. No Docker images were built, no Compose services were started, and Nginx/container health or Compose interpolation was not executed. YAML parsing is not a substitute for `docker compose config`, image build and runtime acceptance.
+- Docker was not installed on the local build host. Subsequent GitHub validation built all four deployment images, parsed Compose configuration and exercised Nginx/API authentication, engine startup, OASIS imports and Neo4j initialization. This does not replace live-model or target-host acceptance.
 - No real local or cloud LLM simulation was run. Ollama model loading, Neo4j initialization/vector dimensions, OASIS execution, real persona ontology adherence, Zep service behavior, credentials/quotas and ReportAgent tool execution require the deployment acceptance checks in `docs/DEPLOYMENT.md`.
 - The upstream original repository's auxiliary root test suite ran: **26 passed, 2 blocked by Windows symlink privilege** (`WinError 1314`). These are repository star-history tests, unrelated to the new scenario workflow; upstream tests/source were preserved without edits.
-- The upstream original backend suite was attempted and stopped at collection because `flask_cors` and the rest of the full engine dependency environment were not installed locally. The engine Dockerfiles install their own declared requirements. The Offline repository has no comparable bundled test suite in this snapshot.
+- The upstream original backend suite initially stopped at collection because its dependency environment was not installed locally. It subsequently ran inside the actual cloud engine image on GitHub: **129 passed**, with network access disconnected. The Offline repository has no comparable bundled test suite in this snapshot.
 - There is no existing site build or lint configuration; the site is prebuilt static HTML/JavaScript, and OHIF/ORT are supplied bundles. Source syntax, preservation checks and the new integration test suite were run instead. A full OHIF source build cannot be run from these ZIPs.
 - Browser verification did not load patient/DICOM files or execute model inference. The original imaging page and model catalog worked; inference and DICOMweb regressions must still be tested on the deployed HTTPS origin with consented/deidentified test data.
 - Cesium reality rendering with a full authenticated evidence snapshot was not exercised in the browser. Structured coordinate parsing and graph-reference tests passed, but runtime globe rendering and fallback should be part of target-host acceptance.
