@@ -3,7 +3,7 @@
 FROM python:3.11.14-slim-bookworm
 ARG ENGINE_DIR
 ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 FLASK_DEBUG=false
-RUN apt-get update && apt-get install -y --no-install-recommends build-essential && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y --no-install-recommends build-essential libcairo2 libmagic1 libgomp1 && rm -rf /var/lib/apt/lists/*
 WORKDIR /engine
 COPY ${ENGINE_DIR}/ ./
 RUN pip install --no-cache-dir -r backend/requirements.txt gunicorn==23.0.0 && useradd -u 10001 -m oncotics && mkdir -p backend/uploads && chown -R oncotics /engine

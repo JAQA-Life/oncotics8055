@@ -125,10 +125,26 @@ def smoke(target):
                          '-e','EMBEDDING_BASE_URL=http://127.0.0.1:9']
             command(*(args+['oncotics-ci:'+target]))
             created.append('service')
-            url='http://127.0.0.1:'+port(name,internal)
-            status,body,_=wait_for(url+'/health')
+            if target=='mirofish-offline':
+                # Docker suppresses published ports on an internal network.
+                # Probe inside the container, preserving production isolation.
+                probe=command('docker','exec',name,'python','-c',
+                    "import time,urllib.request; deadline=time.monotonic()+120\n"
+                    "while time.monotonic()<deadline:\n"
+                    " try:\n"
+                    "  response=urllib.request.urlopen('http://127.0.0.1:5001/health',timeout=5)\n"
+                    "  print(response.read().decode()); break\n"
+                    " except (OSError,TimeoutError): time.sleep(2)\n"
+                    "else: raise RuntimeError('Private engine health check failed')",capture=True)
+                status,body=200,probe.stdout
+            else:
+                url='http://127.0.0.1:'+port(name,internal)
+                status,body,_=wait_for(url+'/health')
             assert json.loads(body)['status']=='ok'
             if target=='scenario-api':assert response(url+'/api/scenarios/config')[0]==401
+            else:
+                command('docker','exec',name,'python','-c',
+                        'import oasis; from camel.models import ModelFactory; from oasis import ActionType, LLMAction; print("OASIS runtime imports passed")')
             if target=='mirofish-offline':
                 probe=command('docker','exec',name,'python','-c',
                               "from oncotics_wsgi import app; assert app.extensions.get('neo4j_storage') is not None",capture=True)
