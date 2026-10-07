@@ -14,6 +14,7 @@ try{
   const context=await browser.newContext({acceptDownloads:true});
   const page=await context.newPage();
   page.on('pageerror',e=>results.errors.push(e.message));
+  page.on('console',msg=>{if(['error','warning'].includes(msg.type()))console.log('BROWSER_CONSOLE',msg.type(),msg.text());});
   context.on('request',r=>{if(!r.url().startsWith(base)&&!r.url().startsWith('data:')&&!r.url().startsWith('blob:'))results.externalRequests.push(r.url());});
   await context.route('https://clinicaltrials.gov/api/v2/studies*',route=>route.fulfill({status:200,contentType:'application/json',headers:{'access-control-allow-origin':'*'},body:JSON.stringify({studies:[{protocolSection:{identificationModule:{nctId:'NCT00000001',briefTitle:'Synthetic CI fixture: stakeholder research coordination'},contactsLocationsModule:{locations:[{facility:'Synthetic CI facility',geoPoint:{lat:20,lon:77}}]}}}]})}));
   await page.goto(base+'/scenario-lab/');
@@ -37,10 +38,13 @@ try{
   const gpu=await page.evaluate(async()=>{const adapter=await navigator.gpu?.requestAdapter();return adapter?{limits:{buffer:adapter.limits.maxStorageBufferBindingSize},info:{vendor:adapter.info?.vendor,architecture:adapter.info?.architecture,device:adapter.info?.device}}:null;});
   assert.ok(gpu,'CI WebGPU adapter is required for real model verification');results.gpu=gpu;
   await page.locator('#load-model').click();
+  console.log('MODEL_LOAD_STARTED');
   await page.waitForFunction(()=>!document.querySelector('#run').disabled||!document.querySelector('#load-model').disabled,null,{timeout:900000});
   assert.equal(await page.locator('#run').isEnabled(),true,await page.locator('#status').innerText());
+  console.log('MODEL_LOADED');
   results.checks.push('Bundled Qwen model and WASM loaded from same-origin files.');
   const start=Date.now();await page.locator('#run').click();
+  console.log('REAL_INFERENCE_STARTED');
   await page.waitForFunction(()=>document.querySelector('#status').textContent.includes('Run completed')||document.querySelector('#detail').textContent.includes('failed'),null,{timeout:600000});
   assert.match(await page.locator('#status').innerText(),/Run completed/,'Real model run must finish with valid JSON and references');
   assert.equal(await page.locator('.record .SIMULATED').count(),1);
