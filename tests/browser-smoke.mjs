@@ -49,7 +49,7 @@ try{
   console.log('REAL_INFERENCE_STARTED');
   await page.waitForFunction(()=>document.querySelector('#detail').textContent.includes('running')||document.querySelector('#status').classList.contains('error'),null,{timeout:15000});
   assert.match(await page.locator('#detail').innerText(),/running/,'The UI must create and start the run');
-  await page.waitForFunction(()=>document.querySelector('#status').textContent.includes('Run completed')||document.querySelector('#status').classList.contains('error'),null,{timeout:630000});
+  await page.waitForFunction(()=>document.querySelector('#status').textContent.includes('Run completed')||document.querySelector('#status').classList.contains('error'),null,{timeout:1830000});
   assert.match(await page.locator('#status').innerText(),/Run completed/,'Real model run must finish with valid JSON and references');
   assert.equal(await page.locator('.record .SIMULATED').count(),1);
   results.inference={duration_ms:Date.now()-start,state:'completed',model:'Qwen2.5-0.5B-Instruct-q4f32_1-MLC',interactions:1};

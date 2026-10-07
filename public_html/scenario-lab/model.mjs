@@ -3,7 +3,7 @@ let engine,worker,manifest,workerFault;
 const asError=value=>value instanceof Error?value:Error(typeof value==='string'?value:value?.message||JSON.stringify(value));
 async function bounded(operation,signal,onStop=()=>{}){
   signal?.throwIfAborted();let timer,abort;
-  const stop=new Promise((_,reject)=>{abort=()=>{onStop();reject(signal.reason||new DOMException('Cancelled','AbortError'));};signal?.addEventListener('abort',abort,{once:true});timer=setTimeout(()=>{onStop();reject(Error('AI operation timed out on this device. The last completed step remains saved.'));},600000);});
+  const stop=new Promise((_,reject)=>{abort=()=>{onStop();reject(signal.reason||new DOMException('Cancelled','AbortError'));};signal?.addEventListener('abort',abort,{once:true});timer=setTimeout(()=>{onStop();reject(Error('AI operation timed out on this device. The last completed step remains saved.'));},1800000);});
   try{return await Promise.race([operation,stop]);}finally{clearTimeout(timer);signal?.removeEventListener('abort',abort);}
 }
 export async function inspectDevice(){
