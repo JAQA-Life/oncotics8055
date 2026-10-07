@@ -41,11 +41,13 @@ const wasm=await readFile(path.join(target,'model.wasm'));
 if (!wasm.subarray(0,4).equals(Buffer.from([0,97,115,109]))) throw Error('Invalid compiled model WASM');
 const baseMeta=await (await fetch('https://huggingface.co/api/models/Qwen/Qwen2.5-0.5B-Instruct')).json();
 await fetchBytes(`https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/resolve/${baseMeta.sha}/LICENSE`,path.join(target,'licenses/Qwen-LICENSE.txt'));
-await fetchBytes('https://raw.githubusercontent.com/mlc-ai/web-llm/v0.2.79/LICENSE',path.join(target,'licenses/WebLLM-LICENSE.txt'));
-await fetchBytes('https://raw.githubusercontent.com/mlc-ai/binary-mlc-llm-libs/main/LICENSE',path.join(target,'licenses/MLC-LICENSE.txt'));
+await fetchBytes('https://raw.githubusercontent.com/mlc-ai/web-llm/main/LICENSE',path.join(target,'licenses/WebLLM-LICENSE.txt'));
+await fetchBytes('https://raw.githubusercontent.com/mlc-ai/mlc-llm/main/LICENSE',path.join(target,'licenses/MLC-LICENSE.txt'));
+const licenses=await (await fetch('https://api.github.com/repos/mlc-ai/web-llm/contents/licenses')).json();
+for(const file of licenses)if(file.type==='file'&&file.download_url)await fetchBytes(file.download_url,path.join(target,'licenses','WebLLM-'+file.name));
 await build({entryPoints:[path.join(root,'src/webllm-worker.mjs')],outfile:path.join(root,'public_html/scenario-lab/model-worker.mjs'),bundle:true,format:'esm',platform:'browser',target:'es2022',legalComments:'eof',sourcemap:true});
-const worker=await readFile(path.join(root,'public_html/scenario-lab/model-worker.mjs'));
-inventory.push({path:'scenario-lab/model-worker.mjs',bytes:worker.length,sha256:createHash('sha256').update(worker).digest('hex'),source:'esbuild bundle of pinned WebLLM and src/webllm-worker.mjs'});
+await build({entryPoints:[path.join(root,'src/model-client.mjs')],outfile:path.join(root,'public_html/scenario-lab/model-client.mjs'),bundle:true,format:'esm',platform:'browser',target:'es2022',legalComments:'eof',sourcemap:true});
+for(const name of ['model-worker.mjs','model-worker.mjs.map','model-client.mjs','model-client.mjs.map']){const bytes=await readFile(path.join(root,'public_html/scenario-lab',name));inventory.push({path:'scenario-lab/'+name,bytes:bytes.length,sha256:createHash('sha256').update(bytes).digest('hex'),source:'esbuild bundle of pinned WebLLM and Oncotics source'});}
 const manifest={schema:'oncotics-browser-model/1',id:modelId,revision:metadata.sha,webllm_version:'0.2.79',model_base:'/assets/browser-ai/qwen/',model_lib:'/assets/browser-ai/model.wasm',context_window_size:4096,vram_required_MB:record.vram_required_MB,files:inventory};
 await writeFile(path.join(target,'manifest.json'),JSON.stringify(manifest,null,2));
 console.log(JSON.stringify({model:modelId,revision:metadata.sha,files:inventory.length,bytes:inventory.reduce((a,x)=>a+x.bytes,0)}));

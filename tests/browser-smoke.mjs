@@ -1,0 +1,63 @@
+// Browser integration uses clearly synthetic provider fixtures; the model is real.
+import {chromium} from 'playwright';
+import {spawn} from 'node:child_process';
+import {mkdir,writeFile} from 'node:fs/promises';
+import assert from 'node:assert/strict';
+const root=new URL('../',import.meta.url),base='http://127.0.0.1:4173';
+await mkdir(new URL('test-results/',root),{recursive:true});
+const server=spawn(process.execPath,['tools/serve.mjs'],{cwd:root,stdio:'inherit'});
+let browser;
+const results={checks:[],externalRequests:[],inference:null,errors:[]};
+try{
+  for(let i=0;i<50;i++){try{if((await fetch(base)).ok)break;}catch{}await new Promise(r=>setTimeout(r,200));}
+  browser=await chromium.launch({headless:true,args:['--enable-unsafe-webgpu','--use-angle=swiftshader','--enable-features=Vulkan','--disable-vulkan-surface']});
+  const context=await browser.newContext({acceptDownloads:true});
+  const page=await context.newPage();
+  page.on('pageerror',e=>results.errors.push(e.message));
+  context.on('request',r=>{if(!r.url().startsWith(base)&&!r.url().startsWith('data:')&&!r.url().startsWith('blob:'))results.externalRequests.push(r.url());});
+  await context.route('https://clinicaltrials.gov/api/v2/studies*',route=>route.fulfill({status:200,contentType:'application/json',headers:{'access-control-allow-origin':'*'},body:JSON.stringify({studies:[{protocolSection:{identificationModule:{nctId:'NCT00000001',briefTitle:'Synthetic CI fixture: stakeholder research coordination'},contactsLocationsModule:{locations:[{facility:'Synthetic CI facility',geoPoint:{lat:20,lon:77}}]}}}]})}));
+  await page.goto(base+'/scenario-lab/');
+  await page.waitForFunction(()=>document.querySelector('#model-info').textContent.includes('Included model:'),null,{timeout:60000});
+  assert.match(await page.title(),/Scenario Lab/);
+  await page.locator('#public-only').check();
+  await page.locator('#concepts').fill('test research');
+  const sources=page.locator('#sources input');for(let i=0;i<await sources.count();i++)await sources.nth(i).uncheck();
+  await page.locator('#sources input[value=ctgov]').check();
+  await page.locator('#retrieve').click();
+  await page.waitForFunction(()=>document.querySelector('#snapshot-summary').textContent.includes('1 record occurrences'),null,{timeout:30000});
+  assert.match(await page.locator('#detail').innerText(),/FACT/);
+  results.checks.push('Evidence-first retrieval, raw receipt, source labeling and graph preserved.');
+  await page.locator('[data-tab=overview]').click();
+  await page.locator('[name=title]').fill('Synthetic CI scenario');
+  await page.locator('[name=question]').fill('What research coordination questions need further verification?');
+  await page.locator('[name=assumptions]').fill('Assume stakeholders meet to identify research evidence gaps.');
+  await page.locator('[name=agents]').fill('1');await page.locator('[name=rounds]').fill('1');
+  await page.locator('#reviewed').check();
+  console.log('GPU_STATUS',await page.locator('#device-info').innerText());
+  const gpu=await page.evaluate(async()=>{const adapter=await navigator.gpu?.requestAdapter();return adapter?{limits:{buffer:adapter.limits.maxStorageBufferBindingSize},info:{vendor:adapter.info?.vendor,architecture:adapter.info?.architecture,device:adapter.info?.device}}:null;});
+  assert.ok(gpu,'CI WebGPU adapter is required for real model verification');results.gpu=gpu;
+  await page.locator('#load-model').click();
+  await page.waitForFunction(()=>!document.querySelector('#run').disabled,null,{timeout:900000});
+  results.checks.push('Bundled Qwen model and WASM loaded from same-origin files.');
+  const start=Date.now();await page.locator('#run').click();
+  await page.waitForFunction(()=>document.querySelector('#status').textContent.includes('Run completed')||document.querySelector('#detail').textContent.includes('failed'),null,{timeout:600000});
+  assert.match(await page.locator('#status').innerText(),/Run completed/,'Real model run must finish with valid JSON and references');
+  assert.equal(await page.locator('.record .SIMULATED').count(),1);
+  results.inference={duration_ms:Date.now()-start,state:'completed',model:'Qwen2.5-0.5B-Instruct-q4f32_1-MLC',interactions:1};
+  await page.locator('[data-tab=agents]').click();await page.locator('[data-agent="0"]').click();assert.equal(await page.locator('#agent-dialog').isVisible(),true);await page.locator('#close-dialog').click();
+  await page.locator('[data-tab=report]').click();assert.match(await page.locator('#detail').innerText(),/SIMULATED/);assert.match(await page.locator('#detail').innerText(),/ASSUMPTION/);
+  const downloaded=page.waitForEvent('download');await page.locator('#export-run').click();const file=await downloaded;await file.saveAs(new URL('test-results/scenario-export.json',root).pathname);
+  await page.reload();await page.locator('[data-scenario]').first().click();assert.match(await page.locator('#detail').innerText(),/completed/);
+  results.checks.push('Real local inference, synthetic agent inspection, labeled report, export and IndexedDB reload.');
+  await page.locator('[data-tab=world]').click();await page.locator('[data-world=difference]').click();assert.match(await page.locator('#detail').innerText(),/No simulation or difference layer/);
+  results.checks.push('Unsupported difference layer shows an explicit limitation.');
+  for(const route of ['/','/precision-oncology-workspace/','/imaging/','/assets/ohif/index.html','/assets/models/brain-mri-brats-segresnet/model.onnx']){const r=await fetch(base+route);assert.equal(r.status,200,route);await r.arrayBuffer();}
+  await page.screenshot({path:new URL('test-results/scenario-lab.png',root).pathname,fullPage:true});
+  assert.deepEqual(results.externalRequests.filter(x=>!x.startsWith('https://clinicaltrials.gov/api/v2/studies')),[],'No external AI, model CDN or telemetry request is permitted');
+  assert.deepEqual(results.errors,[],'No uncaught browser errors');
+  results.checks.push('Existing workspace/imaging/OHIF routes retained; no external AI/CDN/telemetry requests.');
+  const disabled=await browser.newContext();await disabled.addInitScript(()=>Object.defineProperty(navigator,'gpu',{value:undefined}));const noGPU=await disabled.newPage();await noGPU.goto(base+'/scenario-lab/');await noGPU.waitForFunction(()=>document.querySelector('#device-info').textContent.includes('WebGPU is unavailable'));assert.equal(await noGPU.locator('#run').isDisabled(),true);await disabled.close();
+  results.checks.push('Unsupported devices retain evidence browsing and cannot start AI.');
+  console.log('BROWSER_TEST_RESULT',JSON.stringify(results));
+}catch(error){results.failure=error.stack;console.error(error);process.exitCode=1;}
+finally{await writeFile(new URL('test-results/browser-results.json',root),JSON.stringify(results,null,2));await browser?.close();server.kill();}
