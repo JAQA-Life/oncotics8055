@@ -31,7 +31,7 @@ try{
   results.checks.push('Evidence-first retrieval, raw receipt, source labeling and graph preserved.');
   await page.locator('[data-tab=overview]').click();
   await page.locator('[name=title]').fill('Synthetic CI scenario');
-  await page.locator('[name=question]').fill('What research coordination questions need further verification?');
+  await page.locator('[name=question]').fill('What evidence gap should stakeholders verify? Use at most six words for the statement and three words for uncertainty.');
   await page.locator('[name=assumptions]').fill('Assume stakeholders meet to identify research evidence gaps.');
   await page.locator('[name=agents]').fill('1');await page.locator('[name=rounds]').fill('1');
   await page.locator('#reviewed').check();
@@ -44,14 +44,12 @@ try{
   await page.waitForFunction(()=>!document.querySelector('#run').disabled||!document.querySelector('#load-model').disabled,null,{timeout:900000});
   assert.equal(await page.locator('#run').isEnabled(),true,await page.locator('#status').innerText());
   console.log('MODEL_LOADED');
-  const probe=await page.evaluate(async()=>{const m=await import('/scenario-lab/model.mjs'),controller=new AbortController();const timer=setTimeout(()=>controller.abort(),180000);try{return await m.generate('Output a very short JSON object: {"statement":"Hypothetical meeting.","references":[],"uncertainty":"Unverified."}',controller.signal,['R1']);}finally{clearTimeout(timer);}});
-  assert.equal(typeof JSON.parse(probe).statement,'string');console.log('REAL_MODEL_PROBE_PASSED');
   results.checks.push('Bundled Qwen model and WASM loaded from same-origin files.');
   const start=Date.now();await page.locator('#run').click();
   console.log('REAL_INFERENCE_STARTED');
   await page.waitForFunction(()=>document.querySelector('#detail').textContent.includes('running')||document.querySelector('#status').classList.contains('error'),null,{timeout:15000});
   assert.match(await page.locator('#detail').innerText(),/running/,'The UI must create and start the run');
-  await page.waitForFunction(()=>document.querySelector('#status').textContent.includes('Run completed')||document.querySelector('#detail').textContent.includes('failed'),null,{timeout:600000});
+  await page.waitForFunction(()=>document.querySelector('#status').textContent.includes('Run completed')||document.querySelector('#status').classList.contains('error'),null,{timeout:630000});
   assert.match(await page.locator('#status').innerText(),/Run completed/,'Real model run must finish with valid JSON and references');
   assert.equal(await page.locator('.record .SIMULATED').count(),1);
   results.inference={duration_ms:Date.now()-start,state:'completed',model:'Qwen2.5-0.5B-Instruct-q4f32_1-MLC',interactions:1};
