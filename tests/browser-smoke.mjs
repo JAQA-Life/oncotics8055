@@ -1,7 +1,8 @@
 // Browser integration uses clearly synthetic provider fixtures; the model is real.
 import {chromium} from 'playwright';
 import {spawn} from 'node:child_process';
-import {mkdir,writeFile,readdir} from 'node:fs/promises';
+import {mkdir,writeFile} from 'node:fs/promises';
+import {fileURLToPath} from 'node:url';
 import assert from 'node:assert/strict';
 const root=new URL('../',import.meta.url),base='http://127.0.0.1:4173';
 await mkdir(new URL('test-results/',root),{recursive:true});
@@ -10,12 +11,11 @@ let browser,page;
 const results={checks:[],externalRequests:[],inference:null,errors:[]};
 try{
   for(let i=0;i<50;i++){try{if((await fetch(base)).ok)break;}catch{}await new Promise(r=>setTimeout(r,200));}
-  const icds=await readdir('/usr/share/vulkan/icd.d');const lavapipe=icds.find(x=>x.startsWith('lvp')&&x.endsWith('.json'));assert.ok(lavapipe,'Mesa Lavapipe Vulkan driver must be installed');
-  browser=await chromium.launch({channel:'chromium',headless:true,env:{...process.env,VK_ICD_FILENAMES:'/usr/share/vulkan/icd.d/'+lavapipe},args:['--enable-unsafe-webgpu','--use-angle=vulkan','--enable-features=Vulkan','--disable-vulkan-surface']});
+  browser=await chromium.launch({channel:'chromium',headless:true,args:['--enable-unsafe-webgpu','--enable-webgpu-developer-features','--use-webgpu-adapter=default']});
   const context=await browser.newContext({acceptDownloads:true});
   page=await context.newPage();
   page.on('pageerror',e=>results.errors.push(e.message));
-  page.on('console',msg=>{if(['error','warning'].includes(msg.type()))console.log('BROWSER_CONSOLE',msg.type(),msg.text());});
+  page.on('console',msg=>{if(['error','warning'].includes(msg.type())||msg.text().startsWith('AI_STAGE'))console.log('BROWSER_CONSOLE',msg.type(),msg.text());});
   context.on('request',r=>{if(!r.url().startsWith(base)&&!r.url().startsWith('data:')&&!r.url().startsWith('blob:'))results.externalRequests.push(r.url());});
   await context.route('https://clinicaltrials.gov/api/v2/studies*',route=>route.fulfill({status:200,contentType:'application/json',headers:{'access-control-allow-origin':'*'},body:JSON.stringify({studies:[{protocolSection:{identificationModule:{nctId:'NCT00000001',briefTitle:'Synthetic CI fixture: stakeholder research coordination'},contactsLocationsModule:{locations:[{facility:'Synthetic CI facility',geoPoint:{lat:20,lon:77}}]}}}]})}));
   await page.goto(base+'/scenario-lab/');
@@ -55,18 +55,18 @@ try{
   results.inference={duration_ms:Date.now()-start,state:'completed',model:'Qwen2.5-0.5B-Instruct-q4f32_1-MLC',interactions:1};
   await page.locator('[data-tab=agents]').click();await page.locator('[data-agent="0"]').click();assert.equal(await page.locator('#agent-dialog').isVisible(),true);await page.locator('#close-dialog').click();
   await page.locator('[data-tab=report]').click();assert.match(await page.locator('#detail').innerText(),/SIMULATED/);assert.match(await page.locator('#detail').innerText(),/ASSUMPTION/);
-  const downloaded=page.waitForEvent('download');await page.locator('#export-run').click();const file=await downloaded;await file.saveAs(new URL('test-results/scenario-export.json',root).pathname);
+  const downloaded=page.waitForEvent('download');await page.locator('#export-run').click();const file=await downloaded;await file.saveAs(fileURLToPath(new URL('test-results/scenario-export.json',root)));
   await page.reload();await page.locator('[data-scenario]').first().click();assert.match(await page.locator('#detail').innerText(),/completed/);
   results.checks.push('Real local inference, synthetic agent inspection, labeled report, export and IndexedDB reload.');
   await page.locator('[data-tab=world]').click();await page.locator('[data-world=difference]').click();assert.match(await page.locator('#detail').innerText(),/No simulation or difference layer/);
   results.checks.push('Unsupported difference layer shows an explicit limitation.');
   for(const route of ['/','/precision-oncology-workspace/','/imaging/','/assets/ohif/index.html','/assets/models/brain-mri-brats-segresnet/model.onnx']){const r=await fetch(base+route);assert.equal(r.status,200,route);await r.arrayBuffer();}
-  await page.screenshot({path:new URL('test-results/scenario-lab.png',root).pathname,fullPage:true});
+  await page.screenshot({path:fileURLToPath(new URL('test-results/scenario-lab.png',root)),fullPage:true});
   assert.deepEqual(results.externalRequests.filter(x=>!x.startsWith('https://clinicaltrials.gov/api/v2/studies')),[],'No external AI, model CDN or telemetry request is permitted');
   assert.deepEqual(results.errors,[],'No uncaught browser errors');
   results.checks.push('Existing workspace/imaging/OHIF routes retained; no external AI/CDN/telemetry requests.');
   const disabled=await browser.newContext();await disabled.addInitScript(()=>Object.defineProperty(navigator,'gpu',{value:undefined}));const noGPU=await disabled.newPage();await noGPU.goto(base+'/scenario-lab/');await noGPU.waitForFunction(()=>document.querySelector('#device-info').textContent.includes('WebGPU is unavailable'));assert.equal(await noGPU.locator('#run').isDisabled(),true);await disabled.close();
   results.checks.push('Unsupported devices retain evidence browsing and cannot start AI.');
   console.log('BROWSER_TEST_RESULT',JSON.stringify(results));
-}catch(error){results.failure=error.stack;if(page){results.ui=await page.evaluate(()=>({status:document.querySelector('#status')?.textContent,detail:document.querySelector('#detail')?.textContent?.slice(0,2500)})).catch(()=>null);console.error('FAILED_UI',JSON.stringify(results.ui));await page.screenshot({path:new URL('test-results/failure.png',root).pathname,fullPage:true}).catch(()=>{});}console.error(error);process.exitCode=1;}
+}catch(error){results.failure=error.stack;if(page){results.ui=await page.evaluate(()=>({status:document.querySelector('#status')?.textContent,detail:document.querySelector('#detail')?.textContent?.slice(0,2500)})).catch(()=>null);console.error('FAILED_UI',JSON.stringify(results.ui));await page.screenshot({path:fileURLToPath(new URL('test-results/failure.png',root)),fullPage:true}).catch(()=>{});}console.error(error);process.exitCode=1;}
 finally{await writeFile(new URL('test-results/browser-results.json',root),JSON.stringify(results,null,2));await browser?.close();server.kill();}

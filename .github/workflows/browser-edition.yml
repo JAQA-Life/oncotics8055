@@ -10,7 +10,7 @@ concurrency:
   cancel-in-progress: true
 jobs:
   browser:
-    runs-on: ubuntu-24.04
+    runs-on: windows-2025
     permissions:
       contents: write
     timeout-minutes: 40
@@ -26,10 +26,10 @@ jobs:
       - run: npm test
       - run: npm run build
       - run: npx playwright install --with-deps chromium
-      - run: sudo apt-get install -y mesa-vulkan-drivers vulkan-tools
       - run: npm run test:browser
-      - run: python3 tools/package-release.py
+      - run: python tools/package-release.py
       - name: Publish complete tested packages
+        shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
         run: |

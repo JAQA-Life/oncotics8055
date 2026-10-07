@@ -9,4 +9,8 @@ globalThis.fetch = (input, init) => {
   return nativeFetch(input, {...init, mode:'same-origin', redirect:'error', credentials:'omit', referrerPolicy:'no-referrer'});
 };
 const handler = new WebWorkerMLCEngineHandler();
-self.onmessage = message => handler.onmessage(message);
+self.onmessage = message => {
+  const kind=message.data?.kind;
+  console.debug('AI_STAGE worker',kind);
+  handler.onmessage(message,()=>console.debug('AI_STAGE complete',kind));
+};
