@@ -56,7 +56,7 @@ try{
   await page.locator('[data-tab=agents]').click();await page.locator('[data-agent="0"]').click();assert.equal(await page.locator('#agent-dialog').isVisible(),true);await page.locator('#close-dialog').click();
   await page.locator('[data-tab=report]').click();assert.match(await page.locator('#detail').innerText(),/SIMULATED/);assert.match(await page.locator('#detail').innerText(),/ASSUMPTION/);
   const downloaded=page.waitForEvent('download');await page.locator('#export-run').click();const file=await downloaded;await file.saveAs(fileURLToPath(new URL('test-results/scenario-export.json',root)));
-  await page.reload();await page.locator('[data-scenario]').first().click();assert.match(await page.locator('#detail').innerText(),/completed/);
+  await page.reload();await page.locator('[data-scenario]').first().click();await page.waitForFunction(()=>document.querySelector('#detail').textContent.includes('completed'),null,{timeout:30000});assert.match(await page.locator('#detail').innerText(),/completed/);
   results.checks.push('Real local inference, synthetic agent inspection, labeled report, export and IndexedDB reload.');
   await page.locator('[data-tab=world]').click();await page.locator('[data-world=difference]').click();assert.match(await page.locator('#detail').innerText(),/No simulation or difference layer/);
   results.checks.push('Unsupported difference layer shows an explicit limitation.');
