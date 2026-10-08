@@ -33,6 +33,7 @@ jobs:
       - run: npm run build
       - run: npx playwright install --with-deps chromium
       - run: node tests/worker-fault-browser.mjs
+      - run: node tests/model-load-browser.mjs
       - run: python tools/package-complete-fix.py
       - name: Publish complete replacement packages
         env:
