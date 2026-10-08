@@ -1,11 +1,12 @@
 # Engineering validation and acceptance limits
 
-The release is gated by:
+The v2 release is gated by:
 
-1. Unit/workflow checks for receipt preservation, source and field attribution, snapshot tampering, CORS/network failures, response limits, bounded specifications, escaped content, unknown model citations, checkpoint writes, pause/resume and invalid output.
+1. Unit/workflow checks additionally cover exact passage attribution, ranking, surrogate-safe excerpt boundaries, memory isolation, context omission, typed actions, forbidden targets and state hash replay. Existing checks cover receipt preservation, source and field attribution, snapshot tampering, CORS/network failures, response limits, bounded specifications, escaped content, unknown model citations, checkpoint writes, pause/resume and invalid output.
 2. Asset integrity checks for every acquired browser model/runtime file and each of the four original ONNX models; OHIF entry point presence.
-3. A real browser WebGPU test using the actual self-hosted Qwen model. Public evidence in this test is clearly synthetic CI fixture data, not claimed live provider data. The model is not mocked. A one-role/one-round run must produce valid labeled output and complete its report. The browser test covers source review, agent inspection, export, IndexedDB reload, unsupported difference view, unsupported GPU fallback and network requests.
-4. Packaging checks for the final ZIPs, source offer, manifest, runtime and original model files.
+3. A real browser WebGPU test using the actual self-hosted Qwen model. Public evidence in this test is clearly synthetic CI fixture data, not claimed live provider data. The model is not mocked. A current-code one-role/one-round run must initialize the pinned tokenizer, produce a valid research action within the context budget, commit the rule transition and complete its report. Prompt usage is compared with the conservative counter. This is an execution check, not a model reasoning or medical-accuracy benchmark. The browser test covers source review, agent inspection, export, IndexedDB reload, unsupported difference view, unsupported GPU fallback and network requests.
+4. Browser tests with explicitly synthetic action fixtures cover multi-agent memory, the interactive network, keyboard inspection, labeled exports and reload rejection of altered state. They are distinct from the actual-model inference test.
+5. Packaging checks for the final ZIPs, source offer, manifest, runtime and original model files.
 
 Actual results, model revision, browser/device adapter and timing are recorded in `test-results/browser-results.json`; the exported synthetic test run and screenshot are included for inspection. CI uses a headless browser with a software adapter; the actual adapter is recorded in the results. A successful software-adapter test does not establish performance across consumer GPUs or mobiles. Public provider CORS/rate limits and live source availability must be checked on the deployed domain. AI loading can be cancelled; worker failures and initialization/generation timeouts fail visibly. Each operation is limited to 90 minutes to accommodate slow software adapters running the larger 3B model; this is a safety bound, not a performance promise.
 

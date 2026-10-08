@@ -1,7 +1,9 @@
 import {ROLES,digest,verifySnapshot,seedFor,promptFor,parseEvent,reportFor,validateSpec} from './core.mjs';
 import {errorMessage} from './errors.mjs';
+import {runResearchJob} from './research-engine.mjs';
 export async function newJob(spec,envelope,model){spec=validateSpec(spec);await verifySnapshot(envelope);if(!envelope.snapshot.records.length)throw Error('Retrieve or import supported evidence before running.');if(Date.now()-envelope.snapshot.created_at>86400000)throw Error('Retrieve current evidence; the snapshot is older than 24 hours.');const seed=seedFor(envelope);return {schema:'oncotics-browser-scenario/1',id:crypto.randomUUID(),spec,snapshot_id:envelope.id,evidence_sha256:envelope.sha256,seed,seed_sha256:await digest(seed),model:structuredClone(model),agents:ROLES.slice(0,spec.agents).map(x=>({...x,provenance:'SIMULATED'})),events:[],next_step:0,state:'ready',stage:'ready',progress:0,created_at:Date.now(),research_only:true};}
-export async function runJob(job,{store,envelope,generate,signal,onChange=()=>{}}){
+export async function runJob(job,{store,envelope,generate,prepare,signal,onChange=()=>{}}){
+  if(job.schema==='oncotics-browser-scenario/2')return runResearchJob(job,{store,envelope,generate,prepare,signal,onChange});
   await verifySnapshot(envelope);
   if(job.evidence_sha256!==envelope.sha256||await digest(job.seed)!==job.seed_sha256)throw Error('Scenario seed integrity failed.');
   validateSpec(job.spec);

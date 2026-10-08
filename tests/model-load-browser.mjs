@@ -18,7 +18,7 @@ try{
   const start=Date.now();await page.locator('#load-model').click();
   await page.waitForFunction(()=>!document.querySelector('#unload-model').disabled||!document.querySelector('#load-model').disabled,null,{timeout:600000});
   assert.equal(await page.locator('#unload-model').isEnabled(),true,await page.locator('#status').innerText());
-  const identity=await page.evaluate(async()=>{const model=await import('/scenario-lab/model.mjs?v=complete-fix-2');return model.identity();});
+  const identity=await page.evaluate(async()=>{const model=await import('/scenario-lab/model.mjs?v=research-v2-1');return model.identity();});
   assert.equal(identity.id,'Qwen2.5-3B-Instruct-q4f32_1-MLC');assert.equal(identity.revision,'dfa91e859b714acfa489a1464297080656c3460d');assert.deepEqual(external,[]);assert.deepEqual(errors,[]);
   await mkdir('test-results',{recursive:true});const result={passed:true,scope:'Actual Qwen model/WASM loaded using new asset guard; no inference',duration_ms:Date.now()-start,identity,external_requests:external};
   await writeFile('test-results/model-load.json',JSON.stringify(result,null,2));console.log('MODEL_LOAD_RESULT',JSON.stringify(result));

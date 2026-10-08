@@ -23,7 +23,7 @@ try{
   context.on('requestfailed',r=>console.error('REQUEST_FAILED',new URL(r.url()).pathname,r.failure()?.errorText));
   page.on('console',msg=>{if(['error','warning'].includes(msg.type())||msg.text().startsWith('AI_STAGE'))console.log('BROWSER_CONSOLE',msg.type(),msg.text());});
   context.on('request',r=>{if(!r.url().startsWith(base)&&!r.url().startsWith('data:')&&!r.url().startsWith('blob:'))results.externalRequests.push(r.url());});
-  await context.route('https://clinicaltrials.gov/api/v2/studies*',route=>route.fulfill({status:200,contentType:'application/json',headers:{'access-control-allow-origin':'*'},body:JSON.stringify({studies:[{protocolSection:{identificationModule:{nctId:'NCT00000001',briefTitle:'Synthetic CI fixture: stakeholder research coordination'},contactsLocationsModule:{locations:[{facility:'Synthetic CI facility',geoPoint:{lat:20,lon:77}}]}}}]})}));
+  await context.route('https://clinicaltrials.gov/api/v2/studies*',route=>route.fulfill({status:200,contentType:'application/json',headers:{'access-control-allow-origin':'*'},body:JSON.stringify({studies:[{protocolSection:{identificationModule:{nctId:'NCT00000001',briefTitle:'Synthetic CI fixture: stakeholder research coordination'},descriptionModule:{briefSummary:'Synthetic research coordination fixture only. A hypothetical meeting identifies source verification gaps. No clinical findings.'},contactsLocationsModule:{locations:[{facility:'Synthetic CI facility',geoPoint:{lat:20,lon:77}}]}}}]})}));
   await page.goto(base+'/scenario-lab/');
   await page.waitForFunction(()=>document.querySelector('#model-info').textContent.includes('Included model:'),null,{timeout:60000});
   assert.match(await page.title(),/Scenario Lab/);
@@ -41,6 +41,7 @@ try{
   await page.locator('[name=assumptions]').fill('Assume stakeholders meet to identify research evidence gaps.');
   await page.locator('[name=agents]').fill('1');await page.locator('[name=rounds]').fill('1');
   await page.locator('#reviewed').check();
+  await page.locator('#preview-evidence').click();assert.match(await page.locator('#evidence-preview').innerText(),/Exact provider-field excerpts/);
   console.log('GPU_STATUS',await page.locator('#device-info').innerText());
   const gpu=await page.evaluate(async()=>{const adapter=await navigator.gpu?.requestAdapter();return adapter?{limits:{buffer:adapter.limits.maxStorageBufferBindingSize},info:{vendor:adapter.info?.vendor,architecture:adapter.info?.architecture,device:adapter.info?.device}}:null;});
   assert.ok(gpu,'CI WebGPU adapter is required for real model verification');results.gpu=gpu;
@@ -51,6 +52,7 @@ try{
   await page.waitForFunction(()=>!document.querySelector('#run').disabled||!document.querySelector('#load-model').disabled,null,{timeout:900000});
   assert.equal(await page.locator('#run').isEnabled(),true,await page.locator('#status').innerText());
   console.log('MODEL_LOADED');
+  const budget=await page.evaluate(async()=>{const model=await import('/scenario-lab/model.mjs?v=research-v2-1');return model.prepareContext({question:'Synthetic token-budget check only',assumptions:[{ref:'A1',text:'Synthetic meeting',provenance:'ASSUMPTION'}],evidence:[{ref:'R1',text:'Synthetic source field',provenance:'ASSUMPTION'}],own:[],observed:[]});});assert.ok(budget.budget.total_reserved<=4096);assert.ok(budget.budget.prompt_tokens>0);results.tokenizer=budget.budget;
   results.checks.push('Bundled Qwen model and WASM loaded from same-origin files.');
   const start=Date.now();await page.locator('#run').click();
   console.log('REAL_INFERENCE_STARTED');
@@ -59,12 +61,14 @@ try{
   await page.waitForFunction(()=>document.querySelector('#status').textContent.includes('Run completed')||document.querySelector('#status').classList.contains('error'),null,{timeout:5430000});
   assert.match(await page.locator('#status').innerText(),/Run completed/,'Real model run must finish with valid JSON and references');
   assert.equal(await page.locator('.record .SIMULATED').count(),1);
+  const enhanced=await page.evaluate(async()=>{const {LocalStore}=await import('/scenario-lab/storage.mjs'),{verifyResearchJob}=await import('/scenario-lab/research-engine.mjs');const store=await new LocalStore().open(),job=(await store.list())[0],evidence=await store.snapshot(job.snapshot_id);await verifyResearchJob(job,evidence);return {schema:job.schema,tick:job.environment.tick,action:job.events[0].action,diagnostics:job.events[0].diagnostics};});assert.equal(enhanced.schema,'oncotics-browser-scenario/2');assert.equal(enhanced.tick,1);assert.ok(enhanced.diagnostics.budget.total_reserved<=4096);if(enhanced.diagnostics.usage){assert.ok(enhanced.diagnostics.usage.prompt_tokens<=enhanced.diagnostics.budget.prompt_tokens+enhanced.diagnostics.budget.safety_margin);assert.ok(enhanced.diagnostics.usage.prompt_tokens+enhanced.diagnostics.budget.output_reserve<4096);}results.enhanced=enhanced;
   results.inference={duration_ms:Date.now()-start,state:'completed',model:'Qwen2.5-3B-Instruct-q4f32_1-MLC',interactions:1};
   await page.locator('[data-tab=agents]').click();await page.locator('[data-agent="0"]').click();assert.equal(await page.locator('#agent-dialog').isVisible(),true);await page.locator('#close-dialog').click();
   await page.locator('[data-tab=report]').click();assert.match(await page.locator('#detail').innerText(),/SIMULATED/);assert.match(await page.locator('#detail').innerText(),/ASSUMPTION/);
   const downloaded=page.waitForEvent('download');await page.locator('#export-run').click();const file=await downloaded;await file.saveAs(fileURLToPath(new URL('test-results/scenario-export.json',root)));
   await page.reload();await page.locator('[data-scenario]').first().click();await page.waitForFunction(()=>document.querySelector('#detail').textContent.includes('completed'),null,{timeout:30000});assert.match(await page.locator('#detail').innerText(),/completed/);
   results.checks.push('Real local inference, synthetic agent inspection, labeled report, export and IndexedDB reload.');
+  await page.locator('[data-tab=network]').click();assert.equal(await page.locator('.event-node').count(),1);results.checks.push('Real generated action committed through research rules and rendered in the event network.');
   await page.locator('[data-tab=world]').click();await page.locator('[data-world=difference]').click();assert.match(await page.locator('#detail').innerText(),/No simulation or difference layer/);
   results.checks.push('Unsupported difference layer shows an explicit limitation.');
   for(const route of ['/','/precision-oncology-workspace/','/imaging/','/assets/ohif/index.html','/assets/models/brain-mri-brats-segresnet/model.onnx']){const r=await fetch(base+route);assert.equal(r.status,200,route);await r.arrayBuffer();}

@@ -1,4 +1,4 @@
-name: Complete browser Scenario Lab fixes
+name: Enhanced browser Scenario Lab full release
 on:
   push:
     branches: [codex/browser-simulation-fix]
@@ -8,7 +8,7 @@ permissions:
 jobs:
   complete:
     runs-on: ubuntu-24.04
-    timeout-minutes: 25
+    timeout-minutes: 120
     permissions:
       contents: write
     steps:
@@ -33,9 +33,11 @@ jobs:
       - run: npm run build
       - run: npx playwright install --with-deps chromium
       - run: node tests/worker-fault-browser.mjs
+      - run: node tests/research-browser.mjs
       - run: node tests/model-load-browser.mjs
+      - run: npm run test:browser
       - run: python tools/package-complete-fix.py
       - name: Publish complete replacement packages
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release create "browser-complete-fix-${GITHUB_RUN_ID}" release/Oncotics-Hostinger-Upload.zip release/Oncotics-Browser-AI-Complete-Project.zip release/HOSTINGER-UPLOAD.md release/BUILD-RESULTS.json release/SHA256SUMS.txt --target "$GITHUB_SHA" --title "Oncotics Qwen 3B complete replacement — globe and hosting fixes" --notes-file docs/COMPLETE-FIX-RELEASE.md
+        run: gh release create "browser-scenario-v2-${GITHUB_RUN_ID}" release/Oncotics-Hostinger-Upload.zip release/Oncotics-Browser-AI-Complete-Project.zip release/HOSTINGER-UPLOAD.md release/BUILD-RESULTS.json release/SHA256SUMS.txt --target "$GITHUB_SHA" --title "Oncotics Scenario Lab v2 — complete Qwen 3B browser edition" --notes-file docs/SCENARIO-V2-RELEASE.md

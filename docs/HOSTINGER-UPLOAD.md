@@ -71,3 +71,10 @@ The model is distributed under the Qwen Research License Agreement, which permit
 Complete the deployment checks above on the actual Hostinger domain and on representative user devices. Verify HTTPS/CSP/MIME, upload integrity, first-load bandwidth, storage persistence, pause/resume and clear-data behavior. Review licensing/source notices and research-use wording. Have a qualified reviewer assess example outputs against their frozen evidence, especially unsupported claims and citation relevance. Record the accepted browser/device matrix and limits.
 
 Automated engineering checks do not validate medical predictions. This edition supports hypothetical research discussion only. Do not enter patient, DICOM or confidential information into Scenario Lab.
+
+
+## Scenario Lab v2
+
+New scenarios use ranked exact provider-field excerpts, separately inspected own/observed agent histories, tokenizer-aware context budgets and four versioned research actions. The network and timeline expose committed events and the inputs supplied to each turn. Generated actions remain SIMULATED; the rule clock and research queue are bookkeeping rather than scientific confidence. Existing saved scenarios keep their original format. See `SCENARIO-V2-RELEASE.md`, `ARCHITECTURE.md` and the current `BUILD-RESULTS.json` for scope and actual results.
+
+Upload the complete Hostinger ZIP into the domain's public_html, without nesting another public_html folder. Back up existing files, retain the included .htaccess, and purge hosting/CDN caches after extraction. Export saved scenarios before any browser-storage deletion. Verify excerpt preview, a saved action, network inspection, export, evidence geography and imaging on the actual domain. No simulation backend or external AI inference API is required. Public evidence queries still use the selected public providers. This package does not execute the Python MiroFish engines.

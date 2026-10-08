@@ -11,7 +11,7 @@ try{
   await page.goto(base+'/scenario-lab/');
   await page.waitForFunction(()=>document.querySelector('#model-info').textContent.includes('Included model:'),null,{timeout:30000});
   const result=await page.evaluate(async()=>{
-    const {importResponse}=await import('/scenario-lab/core.mjs'),{newJob,runJob}=await import('/scenario-lab/runner.mjs?v=complete-fix-2'),{LocalStore}=await import('/scenario-lab/storage.mjs');
+    const {importResponse}=await import('/scenario-lab/core.mjs'),{newJob,runJob}=await import('/scenario-lab/runner.mjs?v=research-v2-1'),{LocalStore}=await import('/scenario-lab/storage.mjs');
     const store=await new LocalStore().open();
     const evidence=await importResponse('ctgov','Synthetic fault fixture',{studies:[{protocolSection:{identificationModule:{nctId:'NCT00000001',briefTitle:'Synthetic fault fixture'}}}]});await store.freeze(evidence);
     const job=await newJob({title:'Synthetic fault injection',question:'Test error reporting only?',assumptions:['Synthetic injected error; no model inference'],agents:1,rounds:1,research_only:true,public_data_only:true,reviewed:true},evidence,{id:'synthetic-fault-test',revision:'synthetic'});

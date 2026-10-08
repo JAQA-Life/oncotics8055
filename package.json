@@ -13,6 +13,7 @@
   },
   "devDependencies": {
     "@mlc-ai/web-llm": "0.2.79",
+    "@mlc-ai/web-tokenizers": "0.1.6",
     "esbuild": "0.25.10",
     "playwright": "1.55.1"
   }
