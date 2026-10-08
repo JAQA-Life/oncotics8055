@@ -2,6 +2,8 @@
 
 Use `Oncotics-Hostinger-Upload.zip`, which already contains the complete site, imaging assets, AI runtime and model weights. You do not need a VPS. AI runs on the visitor's compatible device; Hostinger serves files.
 
+This release is a complete replacement. No previous archive or patch is required. It includes the globe fix, structured GPU error messages and checks for HTML returned in place of model/JSON files.
+
 Use a normal browser window for the 3B model, with several GB of free disk space. Private/incognito windows can impose smaller cache quotas. If model download or caching fails, check that all model assets are present and that the browser has enough storage. Export saved scenarios and imaging data before clearing any site storage.
 
 ## Recommended: File Manager
@@ -19,7 +21,9 @@ Hostinger documents this upload/extract process in its [File Manager guide](http
 
 On supported Business/Cloud plans, upload **Oncotics-Browser-AI-Complete-Project.zip**. Choose a static frontend / **Other**, Node.js **24**, project root `.`, build command **npm run build**, output directory **dist**, and no server entry file. No environment variables or AI API keys are required. The complete project already includes its model assets. See [Hostinger's deployment settings](https://www.hostinger.com/support/how-to-deploy-a-nodejs-website-in-hostinger/).
 
-The File Manager upload is the simpler path for this static site. For GitHub builds, select branch **codex/browser-ai-edition** in **JAQA-Life/oncotics8055**, then use **npm run vendor && npm run build**, output **dist**. That build downloads the public model artifacts before publishing; it does not call an AI inference service. Check the resulting model revision and manifest against your intended release. Keep the release ZIP as the deployment you can reproduce exactly.
+The File Manager upload is the simpler path for this static site. For GitHub builds, select branch **codex/browser-simulation-fix** in **JAQA-Life/oncotics8055**, then use **npm run vendor && npm run build**, output **dist**. That build downloads the public model artifacts before publishing; it does not call an AI inference service. Check the resulting model revision and manifest against your intended release. Keep the release ZIP as the deployment you can reproduce exactly.
+
+If you see “server returned an HTML page instead of JSON”, the message names the affected file. Verify that file exists at the named path under the domain root. Purge hosting/CDN cache. If a browser-check page is still replacing the file, ask Hostinger support to correct static-asset delivery for that path; the ZIP cannot override server/CDN challenge rules. Do not disable website security globally. The application retains same-site verification cookies for these same-site requests; external public evidence requests still omit credentials. Do not clear all browser/site data to fix server delivery errors.
 
 Do not select the repository's `main` branch for this browser edition: `main` contains the separate backend-engine version. Do not run `tools/serve.mjs` as a production backend.
 

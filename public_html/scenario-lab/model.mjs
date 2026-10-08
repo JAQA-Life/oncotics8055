@@ -1,5 +1,6 @@
 // Model execution is confined to a dedicated same-origin WebGPU worker.
 import {asError} from './errors.mjs';
+import {localJSON} from './assets.mjs';
 let engine,worker,manifest,workerFault;
 async function bounded(operation,signal,onStop=()=>{}){
   signal?.throwIfAborted();let timer,abort;
@@ -15,16 +16,14 @@ export async function inspectDevice(){
   return {available:true,maxStorageBufferBindingSize:adapter.limits.maxStorageBufferBindingSize};
 }
 export async function modelManifest(){
-  const response=await fetch('/assets/browser-ai/manifest.json',{cache:'no-store',credentials:'omit'});
-  if(!response.ok)throw Error('Browser model files are missing. Upload the complete package, including assets/browser-ai.');
-  const value=await response.json();
+  const value=await localJSON('/assets/browser-ai/manifest.json');
   if(value.schema!=='oncotics-browser-model/1'||!/^\w[\w.-]+$/.test(value.id)||!Array.isArray(value.files)||!/^[a-f0-9]{40}$/.test(value.revision)||value.model_base!=='/assets/browser-ai/qwen/resolve/'+value.revision+'/'||value.model_lib!=='/assets/browser-ai/model.wasm')throw Error('Incompatible browser model configuration.');
   manifest=value;return value;
 }
 export async function loadModel(onProgress=()=>{},signal){
   signal?.throwIfAborted();await inspectDevice();manifest=await modelManifest();signal?.throwIfAborted();
   const {CreateWebWorkerMLCEngine}=await import('./model-client.mjs');signal?.throwIfAborted();
-  worker=new Worker('/scenario-lab/model-worker.mjs?v=worker-errors-1',{type:'module'});
+  worker=new Worker('/scenario-lab/model-worker.mjs?v=complete-fix-2',{type:'module'});
   workerFault=new Promise((_,reject)=>{worker.onerror=event=>reject(Error('AI worker failed: '+(event.message||'runtime error')));});
   try{
     const loaded=CreateWebWorkerMLCEngine(worker,manifest.id,{appConfig:{model_list:[{model_id:manifest.id,model:new URL(manifest.model_base,location.origin).href,model_lib:new URL(manifest.model_lib,location.origin).href,overrides:{context_window_size:4096,prefill_chunk_size:128},vram_required_MB:manifest.vram_required_MB,buffer_size_required_bytes:manifest.buffer_size_required_bytes,required_features:manifest.required_features||[]}],useIndexedDBCache:true},initProgressCallback:onProgress},{context_window_size:4096,prefill_chunk_size:128});

@@ -7,6 +7,7 @@ AddType application/manifest+json .webmanifest
 AddType image/webp .webp
 AddType text/plain .txt
 AddType application/wasm .wasm
+AddType application/json .json
 AddType text/javascript .mjs
 AddType application/octet-stream .onnx .bin
 

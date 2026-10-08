@@ -1,7 +1,5 @@
 name: Browser structured error patch
 on:
-  push:
-    branches: [codex/browser-simulation-fix]
   workflow_dispatch:
 permissions:
   contents: read

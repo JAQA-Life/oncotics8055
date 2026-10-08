@@ -11,7 +11,7 @@ try{
   await page.goto(base+'/scenario-lab/');
   await page.waitForFunction(()=>document.querySelector('#model-info').textContent.includes('Included model:'),null,{timeout:30000});
   const result=await page.evaluate(async()=>{
-    const {importResponse}=await import('/scenario-lab/core.mjs'),{newJob,runJob}=await import('/scenario-lab/runner.mjs?v=worker-errors-1'),{LocalStore}=await import('/scenario-lab/storage.mjs');
+    const {importResponse}=await import('/scenario-lab/core.mjs'),{newJob,runJob}=await import('/scenario-lab/runner.mjs?v=complete-fix-2'),{LocalStore}=await import('/scenario-lab/storage.mjs');
     const store=await new LocalStore().open();
     const evidence=await importResponse('ctgov','Synthetic fault fixture',{studies:[{protocolSection:{identificationModule:{nctId:'NCT00000001',briefTitle:'Synthetic fault fixture'}}}]});await store.freeze(evidence);
     const job=await newJob({title:'Synthetic fault injection',question:'Test error reporting only?',assumptions:['Synthetic injected error; no model inference'],agents:1,rounds:1,research_only:true,public_data_only:true,reviewed:true},evidence,{id:'synthetic-fault-test',revision:'synthetic'});
@@ -35,6 +35,15 @@ try{
   await page.waitForTimeout(2000);assert.doesNotMatch(await page.locator('#globe').innerText(),/Globe unavailable/);assert.deepEqual(failures,[]);
   await mkdir('test-results',{recursive:true});await page.screenshot({path:'test-results/geography.png'});
   await page.locator('[data-tab=simulation]').click();await page.locator('[data-tab=world]').click();await page.locator('#globe canvas').waitFor({state:'visible',timeout:30000});
-  await writeFile('test-results/worker-fault.json',JSON.stringify({passed:true,method:'Synthetic injected error, not AI inference',result,geography:'Actual Cesium module/WebGL globe rendered with synthetic provider coordinates and after tab switches'},null,2));
+  // Exercise the actual application against hosting HTML in place of JSON.
+  await page.route('**/assets/browser-ai/manifest.json',route=>route.fulfill({status:200,contentType:'text/html',body:'<!doctype html><title>Checking your browser</title>'}));
+  await page.reload();await page.waitForFunction(()=>document.querySelector('#status').textContent.includes('HTML page'),null,{timeout:30000});
+  assert.match(await page.locator('#status').innerText(),/assets\/browser-ai\/manifest.json/);
+  assert.doesNotMatch(await page.locator('#status').innerText(),/SyntaxError|Unexpected token/);
+  await page.unroute('**/assets/browser-ai/manifest.json');
+  await page.route('**/scenario-lab/entity-aliases.json',route=>route.fulfill({status:200,contentType:'text/html',body:'<!doctype html><title>Missing file</title>'}));
+  await page.reload();await page.waitForFunction(()=>document.querySelector('#status').textContent.includes('HTML page'),null,{timeout:30000});
+  assert.match(await page.locator('#status').innerText(),/scenario-lab\/entity-aliases.json/);
+  await writeFile('test-results/worker-fault.json',JSON.stringify({passed:true,method:'Synthetic injected error, not AI inference',result,geography:'Actual Cesium module/WebGL globe rendered with synthetic provider coordinates and after tab switches',hosting:'Actual UI rejects injected HTML for model manifest and entity aliases with endpoint-specific diagnostics'},null,2));
   console.log('Browser fault UI and zero-progress checkpoint verified.');
 }finally{await browser?.close();server.kill();}
