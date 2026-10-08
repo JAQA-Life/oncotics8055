@@ -41,7 +41,7 @@ try{
   await page.locator('[name=assumptions]').fill('Assume stakeholders meet to identify research evidence gaps.');
   await page.locator('[name=agents]').fill('1');await page.locator('[name=rounds]').fill('1');
   await page.locator('#reviewed').check();
-  await page.locator('#preview-evidence').click();assert.match(await page.locator('#evidence-preview').innerText(),/Exact provider-field excerpts/);
+  await page.locator('#preview-evidence').click();await page.waitForFunction(()=>document.querySelector('#evidence-preview').textContent.includes('Exact provider-field excerpts'));assert.match(await page.locator('#evidence-preview').innerText(),/Exact provider-field excerpts/);
   console.log('GPU_STATUS',await page.locator('#device-info').innerText());
   const gpu=await page.evaluate(async()=>{const adapter=await navigator.gpu?.requestAdapter();return adapter?{limits:{buffer:adapter.limits.maxStorageBufferBindingSize},info:{vendor:adapter.info?.vendor,architecture:adapter.info?.architecture,device:adapter.info?.device}}:null;});
   assert.ok(gpu,'CI WebGPU adapter is required for real model verification');results.gpu=gpu;
