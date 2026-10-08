@@ -36,7 +36,7 @@ export async function loadModel(onProgress=()=>{},signal){
     engine=await bounded(Promise.race([loaded,workerFault]),signal,()=>worker?.terminate());
     const channel=new MessageChannel();port=channel.port1;port.onmessage=event=>{const item=pending.get(event.data.id);if(item){pending.delete(event.data.id);event.data.ok?item.resolve(event.data.value):item.reject(Error(event.data.error));}};port.start();
     const tokenizerFile=manifest.files.find(x=>x.path===manifest.model_base.slice(1)+'tokenizer.json');if(!tokenizerFile)throw Error('Pinned tokenizer manifest entry is missing.');
-    worker.postMessage({kind:'oncotics-channel',base:manifest.model_base,tokenizer_sha256:tokenizerFile.sha256},[channel.port2]);
+    worker.postMessage({kind:'oncotics-channel',base:manifest.model_base,model_id:manifest.id,tokenizer_sha256:tokenizerFile.sha256},[channel.port2]);
     await rpc('initialize',{},signal);
     return identity();
   }catch(e){worker?.terminate();port?.close();port=undefined;worker=undefined;engine=undefined;const error=asError(e);if(!error.message.includes('Website file delivery failed')&&/ArtifactIndexedDBCache failed to fetch|QuotaExceeded/i.test(error.message))throw Error('Model files could not be downloaded or cached. Use a normal browser window with several GB of free disk space, and check that all model files were uploaded. Export saved scenarios before clearing site storage.');throw error;}

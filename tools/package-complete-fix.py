@@ -52,7 +52,7 @@ def package(target,entries):
 skip={'node_modules','dist','release','.git','work','test-results'}
 binary={'.onnx','.bin','.wasm','.zip','.png','.jpg','.jpeg','.webp','.ico','.gif','.woff','.woff2','.ttf','.ktx2','.glb','.dcm','.mp4','.pdf'}
 source=[(file,file.relative_to(root).as_posix()) for file in root.rglob('*') if file.is_file() and not any(p in skip for p in file.relative_to(root).parts) and file.suffix.lower() not in binary]
-for name in ['web-llm','web-tokenizers']:
+for name in ['web-llm']:
     sdk=root/('node_modules/@mlc-ai/'+name)
     source += [(file,'dependencies/'+name+'/'+file.relative_to(sdk).as_posix()) for file in sdk.rglob('*') if file.is_file()]
 package(public/'scenario-lab/source-code.zip',source)
