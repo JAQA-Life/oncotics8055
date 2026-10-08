@@ -19,6 +19,7 @@ jobs:
         with:
           node-version: '24'
       - run: npm install --ignore-scripts
+      - run: node tests/tokenizer-package.check.mjs
       - run: npm test
       - run: node tests/worker-sdk.check.mjs
       - name: Restore verified base weights and inference record
